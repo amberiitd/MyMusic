@@ -1,0 +1,47 @@
+<div class="mx-auto mb-2 p-2 border" style="">
+    <div class="row" >
+        <div class= "col-8" [title]="title">
+            <div class="overflow-hidden" style="font-size: 150%; overflow-x: hidden;">
+                <button type="button" class="btn p-0 ms-1"  (click)= "handlePlay()">
+                    <i *ngIf="!isOnPlay" class="bi bi-play-circle" style="font-size: 1.5em;"></i>
+                    <i *ngIf="isOnPlay" class="bi bi-pause-circle" style="font-size: 1.5em;"></i>
+                </button>
+                {{title}}
+            </div>
+        </div>
+        <!-- Action Space -->
+        <div class="col-4 align-self-right">
+            <div *ngIf="viewOptions.favorite" class="p-0 pe-1 m-2 ms-0 border-end float-end">
+                <button  type="button" class="btn p-0" (click)="heart()">
+                    <i *ngIf="!isFav" class="bi bi-heart"></i>
+                    <i *ngIf="isFav" class="bi bi-heart-fill" ></i>
+                </button>
+            </div>
+            
+            <div *ngIf="viewOptions.playlist" class="dropdown p-0 m-2 ms-0 border-end float-end">
+                <button type="button" class="btn dropdown-toggle p-0" [id]="title+'PlaylistDropDown'" data-bs-toggle = "dropdown">
+                    <i class="bi bi-music-note-list"></i>
+                </button>
+                <ul class="dropdown-menu" [attr.aria-labelledby]="title+'PlaylistDropDown'">
+                    <li *ngFor="let pl of playLists">
+                        <a class="dropdown-item" (click)= "addToPlaylist(pl)">{{pl}}</a>
+                    </li>
+                </ul>
+            </div>
+            <div *ngIf="viewOptions.rmPlaylist" class="p-0 pe-1 m-2 ms-0 border-end float-end">
+                <button  type="button" class="btn p-0 " (click)="addToPlaylist('')">
+                    <i class="bi bi-dash-square"></i>
+                </button>
+            </div>
+            <!-- <button type="button" class="btn p-0 ps-2" >
+                <i class="bi bi-music-note-list" style="color: gainsboro;"></i>
+            </button> -->
+        </div>
+        
+    </div>
+    
+    <div class="row mx-auto">
+        <div class="col align-self-left p-0" >{{singer}} | Album: {{album}}</div>
+        <div class="col-4 align-self-right text-end p-0">{{durationFormatted}}</div>
+    </div>
+</div>
