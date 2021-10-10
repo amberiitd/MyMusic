@@ -1,0 +1,46 @@
+<div class="mx-auto mb-2 p-2 " style="width: 80%;">
+    <div class="row border-bottom mb-2 pb-2 justify-content-end">
+        <div class="col-4">
+            <div *ngIf="form.formActive" class="row">
+                <label for=""></label>
+                <input type="text" id="playListName" class="form-control mt-2" placeholder="playlist name" [(ngModel)]="form.listName">
+            </div>
+        </div>
+        <div class="col-2">
+            <button type="button" [ngClass]= "{'btn': true, 'px-1': true, 'btn-success': form.formActive}" (click)="handleNewPlayList()" >
+                <i class="bi bi-plus-square" style="font-size: 1.5em;"></i>
+            </button>
+        </div>
+    </div>
+    <div *ngFor="let pl of playLists">
+        <div class="row">
+            <div class="col-1">
+                <button class="btn btn-sm" (click)="toggleDropDown(pl.name)" >
+                    <i *ngIf="!pl.state.dropDownActive" class= "bi bi-caret-down"></i>
+                    <i *ngIf="pl.state.dropDownActive" class= "bi bi-caret-up"></i>
+                </button>
+            </div>
+            <div class="col">
+                {{pl.name}}
+            </div>
+            <div class="float-end">
+                <button class="btn p-0">
+
+                </button>
+            </div>
+        </div>
+        <div *ngIf="pl.state.dropDownActive">
+            <app-song *ngFor="let song of pl.songs"
+            [title] = 'song.title'
+            [singer] = 'song.artist'
+            [album] = 'song.album'
+            [duration] = 'song.duration'
+            [userPref] = 'song.userPref'
+            [viewOptions]= "{ favorite: true, playlist: false, rmPlaylist: true}"
+            (addToList)= "remove($event, pl.name)"
+            (handleFav)= "addToFavorite($event)"></app-song>
+        </div>
+        <hr>
+    </div>
+    
+</div>

@@ -1,0 +1,27 @@
+<div>
+    <div *ngIf="loginStatus === 'blank' || loginStatus === 'error'">
+        <div>
+            <label for="username">Username</label>
+            <input type="text" id="username" placeholder="username" [(ngModel)]="form.username"> 
+        </div>
+    
+        <div>
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="password" [(ngModel)]="form.password">
+        </div>
+        <div>
+            <button (click)= "login()">
+                <input type="submit" value="Login">
+            </button>
+        </div>
+    </div>
+    
+    <div *ngIf="loginStatus === 'error'">
+        <p>{{errorMsg}}</p>
+    </div>
+
+    <div *ngIf="loginStatus === 'success'">
+        Go to <a (click) = "navigate('home')">Home</a> 
+    </div>
+
+</div>

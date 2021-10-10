@@ -7,8 +7,12 @@ import { MusicHomeComponent } from './music-home/music-home.component';
 import { FavoriteSongsComponent } from './favorite-songs/favorite-songs.component';
 import { PlaylistComponent } from './playlist/playlist.component';
 import { FormsModule } from '@angular/forms';
-import { SongService } from './services/song.service';
+import { SongService } from './services/data/song.service';
 import { SongPlayerComponent } from './song-player/song-player.component';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { LoginComponent } from './login/login.component';
+import { AppRoutingModule } from './app-routing.module';
+import { UserService } from './services/user.service';
 
 @NgModule({
   declarations: [
@@ -17,13 +21,16 @@ import { SongPlayerComponent } from './song-player/song-player.component';
     MusicHomeComponent,
     FavoriteSongsComponent,
     PlaylistComponent,
-    SongPlayerComponent
+    SongPlayerComponent,
+    LoginComponent
   ],
   imports: [
+    AppRoutingModule,
     BrowserModule,
-    FormsModule
+    FormsModule,
+    HttpClientModule
   ],
-  providers: [SongService],
+  providers: [UserService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

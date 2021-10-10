@@ -1,7 +1,8 @@
 import { Component, Input, OnChanges, OnInit, Output, SimpleChanges, EventEmitter } from '@angular/core';
 import { floor, isNil } from 'lodash';
 import { Duration, Song, UserPreference } from '../models/song.model';
-import { SongService } from '../services/song.service';
+import { AudioService } from '../services/audio.service';
+import { SongService } from '../services/data/song.service';
 
 @Component({
   selector: 'app-song',
@@ -24,7 +25,10 @@ export class SongComponent implements OnInit, OnChanges {
   public isOnPlay = false;
   public isFav= false;
 
-  constructor(private readonly songService: SongService) { }
+  constructor(
+    private readonly songService: SongService,
+    private readonly audioService: AudioService
+    ) { }
 
   ngOnInit(): void {
   }
@@ -42,9 +46,9 @@ export class SongComponent implements OnInit, OnChanges {
   }
 
   private formatDuration(duration: Duration): string {
-    let _sec = `${duration.sec % 60}`;
-    let _min = `${(duration.min + floor(duration.sec/60)) % 60}`;
-    let _hour = `${duration.hour + floor((duration.min + floor(duration.sec/60)) / 60)}`;
+    let _sec = `${duration?.sec % 60}`;
+    let _min = `${(duration?.min + floor(duration?.sec/60)) % 60}`;
+    let _hour = `${duration?.hour + floor((duration?.min + floor(duration?.sec/60)) / 60)}`;
     
     _sec = _sec.length === 1? `0${_sec}`: _sec;
     _min = _min.length === 1? `0${_min}`: _min;
@@ -66,7 +70,7 @@ export class SongComponent implements OnInit, OnChanges {
   }
 
   handlePlay(){
-    this.songService._songOnPlay.next(this.title); 
+    this.audioService._songOnPlay.next(this.title); 
   }
 
 }

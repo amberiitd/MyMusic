@@ -1,0 +1,75 @@
+<div class="container">
+    <div class="mx-auto border" style="width: 70%; min-width: 20em; height: 50%; min-height: 30em; margin-top: 5em;">
+        <div class="mt-2 mb-3" style="margin-left: 10%; margin-right: 10%;">
+            <ul class="nav nav-tabs">
+                <li *ngFor="let tab of navTabs" class="nav-item">
+                    <a [ngClass]="{'nav-link': true, 'active': activeTabId===tab.id}" (click)= "activeTabId=tab.id">{{tab.name}}
+                    <a (click) = "refresh(tab.id)">
+                        <i class="bi bi-arrow-repeat"></i>
+                    </a>
+                </a>
+                    
+
+                </li>
+            </ul>
+        </div>
+        <!-- body -->
+        <div class="mx-auto" style="width: 80%; min-width: 16em;">
+            <div *ngIf="activeTabId===5">
+                <app-song-player></app-song-player>
+            </div>
+            <div  *ngIf="activeTabId===1">
+                    <app-song *ngFor="let song of songList" [title] = 'song.title'
+                    [singer] = 'song.artist'
+                    [album] = 'song.album'
+                    [duration] = 'song.duration'
+                    [userPref] = 'song.userPref'
+                    [playLists] = 'playListsNameInput'
+                    (handleFav)= "handleFavorite($event)"
+                    (addToList)= "addToPlayList($event)"
+                ></app-song>
+            </div>
+            <div  *ngIf="activeTabId===2">
+                <app-song *ngFor="let song of favorites" [title] = 'song.title'
+                    [singer] = 'song.artist'
+                    [album] = 'song.album'
+                    [duration] = 'song.duration'
+                    [userPref] = 'song.userPref'
+                    [playLists] = 'playListsNameInput'
+                    (handleFav)= "handleFavorite($event)"
+                    (addToList)= "addToPlayList($event)"
+                ></app-song>
+            </div>
+            <div *ngIf="activeTabId===3">
+                <app-playlist 
+                    [playLists]="playlists"
+                    (addNewPlaylist)= "addNewPlaylist($event)"
+                    (removeFromList)= "addToPlayList($event)"
+                    (addToFav)= "handleFavorite($event)"
+                ></app-playlist>
+            </div>
+            <div *ngIf="activeTabId===4">
+                <div class="row">
+                    <div class="col mb-2">
+                        <button class="btn float-end" (click)="playHistory=[]">
+                            Clear
+                        </button>
+                    </div>
+                    <hr>
+                </div>
+                <div>
+                    <app-song *ngFor="let song of playHistory" [title] = 'song.title'
+                        [singer] = 'song.artist'
+                        [album] = 'song.album'
+                        [duration] = 'song.duration'
+                        [userPref] = 'song.userPref'
+                        [playLists] = 'playListsNameInput'
+                        (handleFav)= "handleFavorite($event)"
+                        (addToList)= "addToPlayList($event)"
+                    ></app-song>
+                </div>
+            </div>
+        
+        </div>
+    </div>
+</div>
