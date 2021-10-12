@@ -13,6 +13,7 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { LoginComponent } from './login/login.component';
 import { AppRoutingModule } from './app-routing.module';
 import { UserService } from './services/user.service';
+import { DisplayService } from './services/display.service';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,7 @@ import { UserService } from './services/user.service';
     FormsModule,
     HttpClientModule
   ],
-  providers: [UserService],
+  providers: [UserService, DisplayService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

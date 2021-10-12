@@ -12,6 +12,7 @@ import { isEmpty } from "lodash";
 export class SongService{
 
     public songListSubject= new Subject<ReadonlyArray<Song>>();
+    public songAudio = new Subject<{title: string, data: Blob}>(); 
 
     public constructor(
         private readonly httpClient: HttpClient,
@@ -44,5 +45,14 @@ export class SongService{
         ).subscribe( response => this.songListSubject.next(response));
     }
 
+    public fetchSong(title: string) {
+        
+        const options2 = {headers: { "Authorization": "Bearer "+ this.userService.getOAuthToken()}, responseType: 'blob' as 'json'};
+        var audio: Blob = new Blob();
+        this.httpClient.get<Blob>("http://localhost:8080/song/get-source" + "?title=" + title, options2).subscribe(
+            res => {this.songAudio.next({title: title, data: res})}
+        );
+
+    }
 
 }

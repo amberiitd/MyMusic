@@ -1,8 +1,9 @@
-import { Component, Input, OnChanges, OnInit, Output, SimpleChanges, EventEmitter } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, Output, SimpleChanges, EventEmitter, AfterViewChecked, ChangeDetectorRef } from '@angular/core';
 import { floor, isNil } from 'lodash';
 import { Duration, Song, UserPreference } from '../models/song.model';
 import { AudioService } from '../services/audio.service';
 import { SongService } from '../services/data/song.service';
+import { DisplayService } from '../services/display.service';
 
 @Component({
   selector: 'app-song',
@@ -24,14 +25,46 @@ export class SongComponent implements OnInit, OnChanges {
   public durationFormatted: string= '00:00:00';
   public isOnPlay = false;
   public isFav= false;
+  public audioFile: Blob;
 
   constructor(
+    private detector: ChangeDetectorRef,
     private readonly songService: SongService,
-    private readonly audioService: AudioService
+    private readonly audioService: AudioService,
+    private readonly displayService: DisplayService,
     ) { }
 
-  ngOnInit(): void {
+
+
+  ngOnInit() {
+
+    this.displayService._activitySubject.subscribe(activity => {
+        switch(activity.type){
+          case "favorite":
+            if (this.title === activity.id){
+              this.isFav = !this.isFav;
+            }
+            break;
+  
+          case "play":
+            if (this.title === activity.id){
+              this.isOnPlay = !this.isOnPlay;
+            }else if (this.isOnPlay){
+              this.isOnPlay = false;
+            }
+            break;
+  
+          default:
+  
+        }
+
+        this.detector.detectChanges();
+    });
+        
   }
+
+
+
 
   ngOnChanges(changes: SimpleChanges): void {
       if(this.hasBindingChanged(changes, 'duration')){
@@ -69,8 +102,19 @@ export class SongComponent implements OnInit, OnChanges {
     this.addToList.emit({plName, songName: this.title, add: true});
   }
 
-  handlePlay(){
-    this.audioService._songOnPlay.next(this.title); 
+  play(){
+    this.displayService._activitySubject.next({id: this.title, type: 'play', data: null});
+    this.audioService.play(this.title);
+
+  }
+
+  pause(){
+    this.displayService._activitySubject.next({id: this.title, type: 'play', data: null});
+    this.audioService.pause();
+  }
+
+  download(){
+
   }
 
 }

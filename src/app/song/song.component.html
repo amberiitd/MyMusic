@@ -2,15 +2,22 @@
     <div class="row" >
         <div class= "col-8" [title]="title">
             <div class="overflow-hidden" style="font-size: 150%; overflow-x: hidden;">
-                <button type="button" class="btn p-0 ms-1"  (click)= "handlePlay()">
-                    <i *ngIf="!isOnPlay" class="bi bi-play-circle" style="font-size: 1.5em;"></i>
-                    <i *ngIf="isOnPlay" class="bi bi-pause-circle" style="font-size: 1.5em;"></i>
+                <button *ngIf="!isOnPlay" type="button" class="btn p-0 ms-1"  (click)= "play()">
+                    <i class="bi bi-play-circle" style="font-size: 1.5em;"></i>
+                </button>
+                <button *ngIf="isOnPlay" type="button" class="btn p-0 ms-1"  (click)= "pause()">
+                    <i class="bi bi-pause-circle" style="font-size: 1.5em;"></i>
                 </button>
                 {{title}}
             </div>
         </div>
         <!-- Action Space -->
         <div class="col-4 align-self-right">
+            <div *ngIf="viewOptions.favorite" class="p-0 pe-1 m-2 ms-0 border-end float-end">
+                <button  type="button" class="btn p-0" (click)="download()">
+                    <i class="bi bi-download"></i>
+                </button>
+            </div>
             <div *ngIf="viewOptions.favorite" class="p-0 pe-1 m-2 ms-0 border-end float-end">
                 <button  type="button" class="btn p-0" (click)="heart()">
                     <i *ngIf="!isFav" class="bi bi-heart"></i>
@@ -43,5 +50,11 @@
     <div class="row mx-auto">
         <div class="col align-self-left p-0" >{{singer}} | Album: {{album}}</div>
         <div class="col-4 align-self-right text-end p-0">{{durationFormatted}}</div>
+    </div>
+    <div class="row mx-auto">
+        <!-- <audio controls>
+            <source [src]="" type="audio/mp3">
+
+            Your browser does not support the audio element.</audio> -->
     </div>
 </div>

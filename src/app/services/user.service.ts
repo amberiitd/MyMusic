@@ -1,7 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { tokenize } from "@angular/compiler/src/ml_parser/lexer";
 import { Injectable } from "@angular/core";
-import { throwError } from "rxjs";
+import { of, Subject, throwError } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { AuthTokenEndpointResponse } from "../models/auth.model";
 
@@ -12,28 +12,30 @@ export class UserService{
         username: string | undefined;
         isAuthenticated: boolean;
         token: string | undefined;
-    } = {
-        username: undefined,
-        isAuthenticated: false,
-        token: undefined
-    }
+    };
+
+    public refreshAuth = new Subject();
 
     public constructor(private httpClient: HttpClient){
-        const token = localStorage.getItem("oauth-token");
+        const token = sessionStorage.getItem("oauth-token");
         if(token){
-            this.context = { username: undefined, isAuthenticated: true, token: token}
+            this.context = { username: undefined, isAuthenticated: true, token: token};
+        }else{
+            this.context = {
+                username: undefined,
+                isAuthenticated: false,
+                token: undefined
+            };
         }
+        this.refreshAuth.next();
     }
 
-    public authenticate(username: string, password: string){
+    public async authenticate(username: string, password: string){
 
-        if (this.context.isAuthenticated){
-            return;
-        }
         const body = new FormData();
         body.append("grant_type", "password");
-        body.append("username", "namber");
-        body.append("password", "amber1940");
+        body.append("username", username);
+        body.append("password", password);
 
         const body2 = {}
 
@@ -44,7 +46,7 @@ export class UserService{
                 "Authorization": "Basic bXltdXNpYy1jbGllbnQ6c2VjcmV0"
             }
         };
-        this.httpClient.post<AuthTokenEndpointResponse>("http://localhost:8090/oauth/token", body, options)
+        await this.httpClient.post<AuthTokenEndpointResponse>("http://localhost:8090/oauth/token", body, options)
         .pipe(
             catchError((error: any) =>{
                 console.log(error);
@@ -52,14 +54,14 @@ export class UserService{
             })
         )
         .subscribe(response => { 
-            
             console.log(response.access_token);
-            localStorage.setItem("oauth-token", response.access_token);
+            sessionStorage.setItem("oauth-token", response.access_token);
             this.context.token = response.access_token;
             this.context.isAuthenticated = true;
+            this.refreshAuth.next();
         });
 
-        return true;
+        return this.context.isAuthenticated;
 
     }
 

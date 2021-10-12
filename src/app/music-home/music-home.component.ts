@@ -85,6 +85,8 @@ export class MusicHomeComponent implements OnInit {
           ...this.songList[this.onPlaySongIndex].userPref,
           onPlay: false
         };
+
+        this.audioService.pause();
       }
   
       if(index !== this.onPlaySongIndex){
@@ -93,6 +95,7 @@ export class MusicHomeComponent implements OnInit {
           onPlay: true
         };
         this.onPlaySongIndex = index;
+        this.audioService.play(data);
 
         //push to history
         if(isEmpty(this.playHistory) || this.playHistory[0].title !== this.songList[index].title){
