@@ -11,8 +11,9 @@ import { isEmpty } from "lodash";
 )
 export class SongService{
 
-    public songListSubject= new Subject<ReadonlyArray<Song>>();
+    public songListSubject= new Subject<Array<Song>>();
     public songAudio = new Subject<{title: string, data: Blob}>(); 
+    public songList: Array<Song> = [];
 
     public constructor(
         private readonly httpClient: HttpClient,
@@ -22,6 +23,9 @@ export class SongService{
     }
     public init(){
         this.getSongListObservable();
+        this.songListSubject.subscribe(
+            songList => {this.songList = songList}
+          );
     }
 
     public refresh(){
@@ -53,6 +57,10 @@ export class SongService{
             res => {this.songAudio.next({title: title, data: res})}
         );
 
+    }
+
+    getSong(id: string): Song {
+        return this.songList.filter(song => song.title === id)[0];
     }
 
 }

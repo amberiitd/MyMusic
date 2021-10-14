@@ -1,5 +1,5 @@
-<div class="container">
-    <div class="mx-auto border" style="width: 70%; min-width: 20em; height: 50%; min-height: 30em; margin-top: 5em;">
+<div class="container border" style="height: 900px">
+    <div class="mx-auto border" style="width: 50%; min-width: 40em; height: 80%; min-height: 30em; margin-top: 5em;">
         <div class="mt-2 mb-3" style="margin-left: 10%; margin-right: 10%;">
             <ul class="nav nav-tabs">
                 <li *ngFor="let tab of navTabs" class="nav-item">
@@ -14,12 +14,12 @@
             </ul>
         </div>
         <!-- body -->
-        <div class="mx-auto" style="width: 80%; min-width: 16em;">
-            <div *ngIf="activeTabId===5">
+        <div class="mx-auto" style="height: 80%; width: 80%; min-width: 16em;">
+            <div *ngIf="activeTabId===5" class ="h-100">
                 <app-song-player></app-song-player>
             </div>
             <div  *ngIf="activeTabId===1">
-                    <app-song *ngFor="let song of songList" [title] = 'song.title'
+                <app-song *ngFor="let song of songList" [title] = 'song.title'
                     [singer] = 'song.artist'
                     [album] = 'song.album'
                     [duration] = 'song.duration'

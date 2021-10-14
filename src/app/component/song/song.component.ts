@@ -1,9 +1,9 @@
 import { Component, Input, OnChanges, OnInit, Output, SimpleChanges, EventEmitter, AfterViewChecked, ChangeDetectorRef } from '@angular/core';
 import { floor, isNil } from 'lodash';
-import { Duration, Song, UserPreference } from '../models/song.model';
-import { AudioService } from '../services/audio.service';
-import { SongService } from '../services/data/song.service';
-import { DisplayService } from '../services/display.service';
+import { Duration, Song, UserPreference } from '../../models/song.model';
+import { AudioService } from '../../services/audio.service';
+import { SongService } from '../../services/data/song.service';
+import { DisplayService } from '../../services/display.service';
 
 @Component({
   selector: 'app-song',
@@ -38,6 +38,10 @@ export class SongComponent implements OnInit, OnChanges {
 
   ngOnInit() {
 
+    if (this.audioService.currentTitle === this.title){
+      this.isOnPlay = !this.audioService.isOnPause;
+    }
+
     this.displayService._activitySubject.subscribe(activity => {
         switch(activity.type){
           case "favorite":
@@ -48,7 +52,7 @@ export class SongComponent implements OnInit, OnChanges {
   
           case "play":
             if (this.title === activity.id){
-              this.isOnPlay = !this.isOnPlay;
+              this.isOnPlay = activity.data;
             }else if (this.isOnPlay){
               this.isOnPlay = false;
             }
@@ -103,13 +107,10 @@ export class SongComponent implements OnInit, OnChanges {
   }
 
   play(){
-    this.displayService._activitySubject.next({id: this.title, type: 'play', data: null});
     this.audioService.play(this.title);
-
   }
 
   pause(){
-    this.displayService._activitySubject.next({id: this.title, type: 'play', data: null});
     this.audioService.pause();
   }
 

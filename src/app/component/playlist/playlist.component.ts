@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { isEmpty } from 'lodash';
-import { PlayList, Song } from '../models/song.model';
+import { PlayList, Song } from '../../models/song.model';
 
 @Component({
   selector: 'app-playlist',
