@@ -1,9 +1,8 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { MatSlider, MatSliderChange } from '@angular/material/slider';
-import { Song } from 'src/app/models/song.model';
+import { MatSliderChange } from '@angular/material/slider';
+import { ActivityService } from 'src/app/services/activity.service';
 import { AudioService } from 'src/app/services/audio.service';
-import { SongService } from 'src/app/services/data/song.service';
-import { DisplayService } from 'src/app/services/display.service';
+import { UserPrefService } from 'src/app/services/data/user-pref.service';
 import { formatTime } from 'src/app/util/func';
 
 @Component({
@@ -23,9 +22,9 @@ export class SongPlayerComponent implements OnInit{
 
   constructor(
     public readonly audioService: AudioService,
-    private readonly displayService: DisplayService,
-    private readonly songService: SongService,
-    private readonly detector: ChangeDetectorRef
+    private readonly activityService: ActivityService,
+    private readonly detector: ChangeDetectorRef,
+    private readonly userPrefService: UserPrefService
   ) { 
 
   }
@@ -40,12 +39,8 @@ export class SongPlayerComponent implements OnInit{
     if(this.songOnPlay){
       this.isSliderDisabled = false;
     }
-    if (this.isPlaying && this.timerStopped){
-      this.timer(200);
-      this.timerStopped = false;
-    }
 
-    this.displayService._activitySubject.subscribe(activity => {
+    this.activityService._activitySubject.subscribe(activity => {
       if(activity.type === 'play'){
 
         if( !this.songOnPlay || this.songOnPlay!= activity.id){
@@ -57,16 +52,7 @@ export class SongPlayerComponent implements OnInit{
         
         this.isPlaying = activity.data;
         this.currentTime = this.audioService.currentPlayPoint;
-
-        setTimeout(() => {
-          if (this.isPlaying && this.timerStopped){
-              this.timer(200);
-              this.timerStopped = false;
-          }
-        }, 200);
       }
-
-      // this.detector.detectChanges();
     });
 
  
@@ -82,7 +68,7 @@ export class SongPlayerComponent implements OnInit{
   }
 
   play(){
-    this.audioService.play(this.songOnPlay)
+    this.audioService.play(this.songOnPlay);
   }
 
   pause(){
@@ -90,19 +76,6 @@ export class SongPlayerComponent implements OnInit{
   }
 
   playPrev(){
-    var dummy = false;
-  }
 
-  timer(ms: number){
-    setTimeout(()=>{
-      // do something
-      this.currentTime+= (ms/1000);
-      if (this.isPlaying){
-        this.timer(ms);
-      }else{
-        this.timerStopped = true;
-      }
-      }, ms)
   }
-
 }

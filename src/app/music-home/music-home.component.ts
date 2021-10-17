@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { isEmpty } from 'lodash';
 import { PlayList, Song } from '../models/song.model';
+import { ActivityService } from '../services/activity.service';
 import { AudioService } from '../services/audio.service';
 import { SongService } from '../services/data/song.service';
+import { UserPrefService } from '../services/data/user-pref.service';
 import { UserService } from '../services/user.service';
 
 @Component({
@@ -24,9 +25,12 @@ export class MusicHomeComponent implements OnInit {
   constructor(
     private readonly songService: SongService,
     private readonly audioService: AudioService,
-    private readonly userService: UserService
+    private readonly userService: UserService,
+    private readonly userPrefService: UserPrefService,
+    private readonly activityService: ActivityService
     ) {
       songService.init();
+      userPrefService.init();
   }
 
   ngOnInit(): void {
@@ -53,58 +57,70 @@ export class MusicHomeComponent implements OnInit {
     ]
 
     this.songService.songListSubject.subscribe(
-      songList => {this.songList = songList}
+      songList => {
+        this.songList = songList;
+        console.log("songlist event occured");
+      }
     );
 
-    this.songList.forEach(song =>{
-      if (song.userPref && song.userPref.favorite){
-        this.favorites.push(song);
-      }
-    })
-
-    this.playlists =[
-      {
-        name: 'Azra',
-        songs: this.songList.slice(0,2),
-        state: {dropDownActive: false,}
-      },
-      {
-        name: 'Amber',
-        songs: [],
-        state: {dropDownActive: false,}
-      }
-    ];
-
-    this.playListsNameInput = this.playlists.map(pl => pl.name);
-
-    this.audioService.songOnPlay$.subscribe(data =>{
-      const index = this.songList.findIndex(s => s.title === data);
-
-      if(this.onPlaySongIndex >= 0){
-        this.songList[this.onPlaySongIndex].userPref = {
-          ...this.songList[this.onPlaySongIndex].userPref,
-          onPlay: false
-        };
-
-        this.audioService.pause();
-      }
-  
-      if(index !== this.onPlaySongIndex){
-        this.songList[index].userPref = {
-          ...this.songList[index].userPref,
-          onPlay: true
-        };
-        this.onPlaySongIndex = index;
-        this.audioService.play(data);
-
-        //push to history
-        if(isEmpty(this.playHistory) || this.playHistory[0].title !== this.songList[index].title){
-          this.playHistory= [this.songList[index], ...this.playHistory.slice(0, 10)];
-        }
-      }else{
-        this.onPlaySongIndex = -1;
-      }
+    this.activityService._favListUpdate.subscribe(()=>{
+      this.favorites = this.userPrefService.favList;
     });
+
+    this.activityService._playHistoryUpdate.subscribe(()=>{
+      this.playHistory = this.userPrefService.recents;
+    });
+
+    this.activityService._playlistUpdate.subscribe(()=>{
+      this.playlists = this.userPrefService.playLists;
+      this.playListsNameInput = this.playlists.map(pl => pl.name);
+      console.log("playlist event occured");
+    });
+    
+
+    // this.playlists =[
+    //   {
+    //     name: 'Azra',
+    //     songs: this.songList.slice(0,2),
+    //     state: {dropDownActive: false,}
+    //   },
+    //   {
+    //     name: 'Amber',
+    //     songs: [],
+    //     state: {dropDownActive: false,}
+    //   }
+    // ];
+
+    // this.playListsNameInput = this.playlists.map(pl => pl.name);
+
+    // this.audioService.songOnPlay$.subscribe(data =>{
+    //   const index = this.songList.findIndex(s => s.title === data);
+
+    //   if(this.onPlaySongIndex >= 0){
+    //     this.songList[this.onPlaySongIndex].userPref = {
+    //       ...this.songList[this.onPlaySongIndex].userPref,
+    //       onPlay: false
+    //     };
+
+    //     this.audioService.pause();
+    //   }
+  
+    //   if(index !== this.onPlaySongIndex){
+    //     this.songList[index].userPref = {
+    //       ...this.songList[index].userPref,
+    //       onPlay: true
+    //     };
+    //     this.onPlaySongIndex = index;
+    //     this.audioService.play(data);
+
+    //     //push to history
+    //     if(isEmpty(this.playHistory) || this.playHistory[0].title !== this.songList[index].title){
+    //       this.playHistory= [this.songList[index], ...this.playHistory.slice(0, 10)];
+    //     }
+    //   }else{
+    //     this.onPlaySongIndex = -1;
+    //   }
+    // });
 
 
   }

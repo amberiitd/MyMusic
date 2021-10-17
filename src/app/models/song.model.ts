@@ -26,9 +26,14 @@ export interface UserPreference{
 }
 
 export interface PlayList{
-    name: string,
-    songs: Song[], 
+    name: string;
+    songs: Song[];
     state: {
         dropDownActive?: boolean;
     }
+}
+
+export interface PlayListDTO{
+    plName: string;
+    songs: string[];
 }

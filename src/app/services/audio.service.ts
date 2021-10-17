@@ -1,36 +1,35 @@
 import { Injectable } from "@angular/core";
 import { Subject } from "rxjs";
-import { Song } from "../models/song.model";
+import { ActivityService } from "./activity.service";
 import { SongService } from "./data/song.service";
-import { DisplayService } from "./display.service";
 
 @Injectable({
     providedIn: "root"
 })
 export class AudioService{
-    _songOnPlay= new Subject<string>();
-    songOnPlay$ = this._songOnPlay.asObservable();
+    public _songOnPlay= new Subject<string>();
+    public songOnPlay$ = this._songOnPlay.asObservable();
 
     public currentPlayPoint: number = 0;
     public songDuration: number =0;
-
     public currentTitle : string;
+    public isOnPause = true;
+    
+    private timerObject: any;
+    private creatingSource= false;
     private lastPlayPoint: number = 0;
+
+    // audio context
     private audioFile: Blob;
     private audioCtx: AudioContext;
     private audioSrc: AudioBufferSourceNode;
     private audioBuffer: AudioBuffer | null;
     private playRequest: {title: string | null} ={title: null};
-    public isOnPause = true;
-    public pausedByAction = false;
-    private timerObject: any;
-    private creatingSource= false;
-    private timerStopped = true;
 
 
     constructor(
         private songService: SongService,
-        private displayService: DisplayService
+        private displayService: ActivityService
     ){
 
         this.songService.songAudio.subscribe(async song => {
@@ -59,7 +58,6 @@ export class AudioService{
             if (offset && offset >=0 ){
                 this.currentPlayPoint = offset;
             }
-
             this.startPlayer();
 
             return;
@@ -81,16 +79,9 @@ export class AudioService{
         if(this.isOnPause){
             return;
         }
-
-        // this.currentPlayPoint += this.audioCtx.currentTime - this.lastPlayPoint;
         this.displayService._activitySubject.next({id: this.currentTitle, type: 'play', data: false});
         this.isOnPause = true;
-        this.pausedByAction = true;
-        this.audioSrc.stop();
-    }
-
-    setOffset(){
-
+        await this.audioSrc.stop();
     }
 
     stop(){
@@ -105,7 +96,6 @@ export class AudioService{
         this.creatingSource = true;
 
         if(!this.isOnPause){
-            this.pausedByAction = true;
             await this.audioSrc.stop();
         }
 
@@ -116,12 +106,10 @@ export class AudioService{
         this.audioSrc.connect(this.audioCtx.destination);
         this.audioSrc.buffer = this.audioBuffer;
         
-        // this.lastPlayPoint = this.audioCtx.currentTime;
         await clearTimeout(this.timerObject);
         setTimeout(() => {
             if (!this.isOnPause){
                 this.timer(200);
-                this.timerStopped = false;
             }
         }, 200);
         this.lastPlayPoint = this.audioCtx.currentTime;
@@ -141,25 +129,14 @@ export class AudioService{
           }
           if (!this.isOnPause){
             this.timer(ms);
-          }else{
-              this.timerStopped = true;
           }
         }, ms)
-    }
-
-    private updateCurrentPlayPoint(ms: number){
-        setTimeout(()=>{
-            // do something
-            this.currentPlayPoint = this.audioCtx.currentTime -this.lastPlayPoint;
-            this.updateCurrentPlayPoint(ms);
-          }, ms)
     }
 
     private onEnded(){
         this.lastPlayPoint = 0;
         this.currentPlayPoint = 0;
         this.isOnPause = true;
-        this.pausedByAction = false;
         this.displayService._activitySubject.next({id: this.currentTitle, type: 'play', data: false});
     }
 

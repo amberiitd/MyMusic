@@ -1,7 +1,6 @@
 import { HttpClient } from "@angular/common/http";
-import { tokenize } from "@angular/compiler/src/ml_parser/lexer";
 import { Injectable } from "@angular/core";
-import { of, Subject, throwError } from "rxjs";
+import { Subject, throwError } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { AuthTokenEndpointResponse } from "../models/auth.model";
 

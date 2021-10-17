@@ -1,9 +1,10 @@
-import { Component, Input, OnChanges, OnInit, Output, SimpleChanges, EventEmitter, AfterViewChecked, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { floor, isNil } from 'lodash';
-import { Duration, Song, UserPreference } from '../../models/song.model';
+import { UserPrefService } from 'src/app/services/data/user-pref.service';
+import { Duration, UserPreference } from '../../models/song.model';
+import { ActivityService } from '../../services/activity.service';
 import { AudioService } from '../../services/audio.service';
 import { SongService } from '../../services/data/song.service';
-import { DisplayService } from '../../services/display.service';
 
 @Component({
   selector: 'app-song',
@@ -31,7 +32,8 @@ export class SongComponent implements OnInit, OnChanges {
     private detector: ChangeDetectorRef,
     private readonly songService: SongService,
     private readonly audioService: AudioService,
-    private readonly displayService: DisplayService,
+    private readonly activityService: ActivityService,
+    private readonly userPrefService: UserPrefService
     ) { }
 
 
@@ -42,7 +44,11 @@ export class SongComponent implements OnInit, OnChanges {
       this.isOnPlay = !this.audioService.isOnPause;
     }
 
-    this.displayService._activitySubject.subscribe(activity => {
+    if(this.userPrefService.isFavorite(this.title)){
+      this.isFav = true;
+    }
+
+    this.activityService._activitySubject.subscribe(activity => {
         switch(activity.type){
           case "favorite":
             if (this.title === activity.id){
@@ -99,14 +105,28 @@ export class SongComponent implements OnInit, OnChanges {
   }
 
   public heart(){
-      this.handleFav.emit({title: this.title, flag: this.isFav? -1: 1});
+    if (this.isFav){
+      this.userPrefService.removeFromFav(this.title);
+    }else{
+      this.userPrefService.addToFav(this.title);
+    }
+    // this.handleFav.emit({title: this.title, flag: this.isFav? -1: 1});
   }
 
   public addToPlaylist(plName: string){
+    // this.addToList.emit({plName, songName: this.title, add: true});
+    this.userPrefService.addToPlayList(plName, this.title);
+
+  }
+
+  public removeFromPlaylist(plName: string){
     this.addToList.emit({plName, songName: this.title, add: true});
+    // this.userPrefService.removeFromPlayList(plName, this.title);
+
   }
 
   play(){
+    this.userPrefService.addToRecent(this.title);
     this.audioService.play(this.title);
   }
 

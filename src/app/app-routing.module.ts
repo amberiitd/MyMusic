@@ -1,7 +1,7 @@
 import { NgModule } from "@angular/core";
-import { Router, RouterModule, Routes } from "@angular/router";
-import { AuthGuard } from "./config/auth.guard";
+import { RouterModule, Routes } from "@angular/router";
 import { LoginComponent } from "./component/login/login.component";
+import { AuthGuard } from "./config/auth.guard";
 import { MusicHomeComponent } from "./music-home/music-home.component";
 
 const routes: Routes = [

@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { isEmpty } from 'lodash';
-import { PlayList, Song } from '../../models/song.model';
+import { UserPrefService } from 'src/app/services/data/user-pref.service';
+import { PlayList } from '../../models/song.model';
 
 @Component({
   selector: 'app-playlist',
@@ -16,7 +17,9 @@ export class PlaylistComponent implements OnInit, OnChanges {
   @Output() public addToFav= new EventEmitter<any>();
   
   public form: {listName: string, formActive: boolean}= {listName: '', formActive: false};
-  constructor() { }
+  constructor(
+    private readonly userPrefService: UserPrefService
+  ) { }
 
   ngOnChanges(changes: SimpleChanges): void {
     console.log(this.playLists);
@@ -35,7 +38,8 @@ export class PlaylistComponent implements OnInit, OnChanges {
       const index = this.playLists.findIndex((pl) => pl.name=== this.form.listName)
       
       if(index < 0){
-          this.addNewPlaylist.emit({name: this.form.listName, songs: [], state: {}});
+          this.userPrefService.createPlayList(this.form.listName);
+        // this.addNewPlaylist.emit({name: this.form.listName, songs: [], state: {}});
       }else{
         console.log(`Playlist with name:${this.form.listName}, already exits`);
       }
@@ -49,10 +53,10 @@ export class PlaylistComponent implements OnInit, OnChanges {
   }
 
   remove(param: any, name: string){
-    this.removeFromList.emit({...param, plName: name, add: false});
+    // this.removeFromList.emit({...param, plName: name, add: false});
   }
 
   addToFavorite(fav: {title: string, flag: number}){
-    this.addToFav.emit(fav);
+    // this.addToFav.emit(fav);
   }
 }

@@ -1,10 +1,10 @@
+import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { HttpClient, HttpHeaders} from "@angular/common/http";
-import { Observable, of, Subject} from "rxjs";
-import { map } from "rxjs/operators"
+import { Subject } from "rxjs";
+import { map } from "rxjs/operators";
 import { Song, SongResponseDTO } from "src/app/models/song.model";
+import { ActivityService } from "../activity.service";
 import { UserService } from "../user.service";
-import { isEmpty } from "lodash";
 
 @Injectable(
     {providedIn: "root"}
@@ -14,10 +14,12 @@ export class SongService{
     public songListSubject= new Subject<Array<Song>>();
     public songAudio = new Subject<{title: string, data: Blob}>(); 
     public songList: Array<Song> = [];
+    private mymApi = "http://localhost:8080";
 
     public constructor(
         private readonly httpClient: HttpClient,
-        private userService: UserService
+        private userService: UserService,
+        private activityService: ActivityService
     ){
         
     }
@@ -62,5 +64,28 @@ export class SongService{
     getSong(id: string): Song {
         return this.songList.filter(song => song.title === id)[0];
     }
+
+    getSongsObservable(titles: ReadonlyArray<string>){
+        const options = {
+            headers: { "Authorization": "Bearer "+ this.userService.getOAuthToken()},
+            
+        };
+
+        return this.httpClient.post<ReadonlyArray<Song>>(this.mymApi+ "/song/get-listed-songs", titles, options)
+        .pipe(
+            map(response => response.map((songDTO) => {
+                return {
+                    title: songDTO.title, 
+                    album: songDTO.album, 
+                    artist: songDTO.artist, 
+                    duration: songDTO.duration,
+                    userPref: {}
+                  } as Song;
+              })
+            )
+        );
+        
+    }
+
 
 }
