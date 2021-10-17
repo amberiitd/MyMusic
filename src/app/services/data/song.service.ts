@@ -10,7 +10,7 @@ import { UserService } from "../user.service";
     {providedIn: "root"}
 )
 export class SongService{
-
+    
     public songListSubject= new Subject<Array<Song>>();
     public songAudio = new Subject<{title: string, data: Blob}>(); 
     public songList: Array<Song> = [];
@@ -85,6 +85,16 @@ export class SongService{
             )
         );
         
+    }
+
+    public getImage(title: string) {
+        const options = {
+            headers: { "Authorization": "Bearer "+ this.userService.getOAuthToken()},
+            responseType: 'blob' as 'json',
+            params: {"title": title}
+            
+        };
+        return this.httpClient.get<Blob>(this.mymApi + "/song/thumbnail", options);
     }
 
 

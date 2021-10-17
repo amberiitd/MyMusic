@@ -27,6 +27,8 @@ export class SongComponent implements OnInit, OnChanges {
   public isOnPlay = false;
   public isFav= false;
   public audioFile: Blob;
+  public imageBytes: any ;
+  public downloadFile: any;
 
   constructor(
     private detector: ChangeDetectorRef,
@@ -47,6 +49,13 @@ export class SongComponent implements OnInit, OnChanges {
     if(this.userPrefService.isFavorite(this.title)){
       this.isFav = true;
     }
+
+    this.songService.getImage(this.title).subscribe(
+      response =>{
+        this.toImgageString(response);
+      }
+    );
+
 
     this.activityService._activitySubject.subscribe(activity => {
         switch(activity.type){
@@ -137,5 +146,14 @@ export class SongComponent implements OnInit, OnChanges {
   download(){
 
   }
+  
+  toImgageString(source: Blob){
+    var reader = new FileReader();
+    reader.readAsDataURL(source); 
+    reader.onload = (e) => {
+        this.imageBytes = e.target?.result;
+    };
+    // window.open(window.URL.createObjectURL(source));
+}
 
 }

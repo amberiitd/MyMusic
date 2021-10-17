@@ -11,6 +11,9 @@
                 {{title}}
             </div>
         </div>
+        <div class="col">
+            <img [id] = "title" [src]="imageBytes" alt="icon" style="height: 5em; width: 5em;"/>
+        </div>
         <!-- Action Space -->
         <div class="col-4 align-self-right">
             <div class="p-1 m-1 ms-0 border rounded-pill float-end">
@@ -19,9 +22,9 @@
                 </button>
             </div>
             <div *ngIf="viewOptions.favorite" class="p-1 m-1 ms-0 border rounded-pill float-end">
-                <button  type="button" class="btn p-0" (click)="download()">
+                <a  type="button" class="btn p-0" [href] ="downloadFile">
                     <i class="bi bi-download"></i>
-                </button>
+                </a>
             </div>
             <div *ngIf="viewOptions.favorite" class="p-1 m-1 ms-0 border rounded-pill float-end">
                 <button  type="button" class="btn p-0" (click)="heart()">
