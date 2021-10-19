@@ -14,31 +14,26 @@
             </ul>
         </div>
         <!-- body -->
-        <div class="mx-auto" style="height: 80%; width: 80%; min-width: 16em;">
+        <div class="mx-auto" style="height: 80%; width: 80%; min-width: 16em; overflow-y: auto;">
             <div *ngIf="activeTabId===5" class ="h-100">
                 <app-song-player></app-song-player>
             </div>
             <div  *ngIf="activeTabId===1">
-                <app-song *ngFor="let song of songList" [title] = 'song.title'
-                    [singer] = 'song.artist'
-                    [album] = 'song.album'
-                    [duration] = 'song.duration'
-                    [userPref] = 'song.userPref'
-                    [playLists] = 'playListsNameInput'
-                    (handleFav)= "handleFavorite($event)"
-                    (addToList)= "addToPlayList($event)"
-                ></app-song>
-            </div>
-            <div  *ngIf="activeTabId===2">
-                <app-song *ngFor="let song of favorites" [title] = 'song.title'
-                    [singer] = 'song.artist'
-                    [album] = 'song.album'
-                    [duration] = 'song.duration'
-                    [userPref] = 'song.userPref'
-                    [playLists] = 'playListsNameInput'
-                    (handleFav)= "handleFavorite($event)"
-                    (addToList)= "addToPlayList($event)"
-                ></app-song>
+                <app-category-board 
+                    name ="General"
+                    [songList] ="songList"
+                    [playListNames] ="playListsNameInput"
+                ></app-category-board>
+                <app-category-board 
+                    name ="Favorite"
+                    [songList] ="favorites"
+                    [playListNames] ="playListsNameInput"
+                ></app-category-board>
+                <app-category-board 
+                    name ="Recent"
+                    [songList] ="playHistory"
+                    [playListNames] ="playListsNameInput"
+                ></app-category-board>
             </div>
             <div *ngIf="activeTabId===3">
                 <app-playlist 
@@ -48,7 +43,7 @@
                     (addToFav)= "handleFavorite($event)"
                 ></app-playlist>
             </div>
-            <div *ngIf="activeTabId===4">
+            <!-- <div *ngIf="activeTabId===4">
                 <div class="row">
                     <div class="col mb-2">
                         <button class="btn float-end" (click)="playHistory=[]">
@@ -68,8 +63,8 @@
                         (addToList)= "addToPlayList($event)"
                     ></app-song>
                 </div>
-            </div>
-        
+            </div> -->
         </div>
+        
     </div>
 </div>

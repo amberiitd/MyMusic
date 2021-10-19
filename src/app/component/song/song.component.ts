@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { floor, isNil } from 'lodash';
 import { UserPrefService } from 'src/app/services/data/user-pref.service';
 import { Duration, UserPreference } from '../../models/song.model';
@@ -29,6 +29,7 @@ export class SongComponent implements OnInit, OnChanges {
   public audioFile: Blob;
   public imageBytes: any ;
   public downloadFile: any;
+  public showPlay: boolean=  false;
 
   constructor(
     private detector: ChangeDetectorRef,
@@ -79,7 +80,6 @@ export class SongComponent implements OnInit, OnChanges {
 
         this.detector.detectChanges();
     });
-        
   }
 
 
@@ -154,6 +154,14 @@ export class SongComponent implements OnInit, OnChanges {
         this.imageBytes = e.target?.result;
     };
     // window.open(window.URL.createObjectURL(source));
-}
+  }
 
+  hoverOnImg(){
+    this.showPlay = true;
+
+  }
+
+  hoverOffImg(){
+    this.showPlay = false;
+  }
 }

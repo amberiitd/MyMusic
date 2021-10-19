@@ -17,6 +17,7 @@ import { MusicHomeComponent } from './music-home/music-home.component';
 import { ActivityService } from './services/activity.service';
 import { UserPrefService } from './services/data/user-pref.service';
 import { UserService } from './services/user.service';
+import { CategoryBoardComponent } from './component/category-board/category-board.component';
 
 
 @NgModule({
@@ -30,6 +31,7 @@ import { UserService } from './services/user.service';
     LoginComponent,
     IconBtnComponent,
     ActionBarComponent,
+    CategoryBoardComponent,
   ],
   imports: [
     AppRoutingModule,

@@ -17,7 +17,7 @@ export class MusicHomeComponent implements OnInit {
   public favorites: Song[]= [];
   public playlists: PlayList[]=[];
   public navTabs: any[];
-  public activeTabId: number = 5;
+  public activeTabId: number = 1;
   public playListsNameInput: string[] =[]
   public playHistory: Song[]=[];
   public onPlaySongIndex = -1;
@@ -40,17 +40,10 @@ export class MusicHomeComponent implements OnInit {
         name: 'songs',
       },
       {
-        id: 2,
-        name: 'favorites',
-      },
-      {
         id: 3,
         name: 'playlist'
       },
       {
-        id: 4,
-        name: 'history'
-      },{
         id: 5,
         name: 'player'
       }
