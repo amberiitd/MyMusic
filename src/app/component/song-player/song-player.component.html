@@ -1,58 +1,54 @@
-<div class="mx-auto mb-2 p-2 h-100" style="position: relative">
 
-    <div class="m-0 w-100">
-        <h2>{{songOnPlay}}</h2>
-    </div>
-   
-    <div class="m-0 w-100" style="position: absolute; bottom: 0px; left: 0px">
-        <div class="row m-0 w-100 justify-content-between">
-            <div class="col-auto m-0 p-0" style="width: 4em;">
-                <div class="pt-3">
-                    00:00
-                </div>
-            </div>
-            <div class="col m-0 p-0">
-                <mat-slider class= "w-100" 
-                    [min]="0" 
-                    [max]="duration" 
-                    [value] ="audioService.currentPlayPoint"
-                    [disabled] = "isSliderDisabled"
-                    (change) = "handleChange($event)"
-                    (input) = "handleSlide($event)"
-                ></mat-slider>
-            </div>
-            <div class="col-2 m-0 p-0" style="width: 4em;">
-                <div class="pt-3">
-                    {{durationString}}
-                </div>
+<div>
+    <div class="row m-0 w-100 justify-content-between" style="height: 2.5em;">
+        <div class="col-auto m-0 p-0" style="width: 4em; height: inherit;">
+            <div class="pt-3" style="text-align: right;">
+                00:00
             </div>
         </div>
-        <!-- controls -->
-        <div class="row m-0 w-100 justify-content-center align-items-center">
-            <div class="col m-0 0ffset-md-3 mx-auto " align= "center">
-                <button class="btn p-1 m-1 border rounded-pill">
-                    <i class="bi bi-shuffle" style="font-size: 100%;"></i>
-                </button>
-                <button class="btn p-1 m-1 border rounded-pill " (click)="playPrev()">
-                    <i class="bi bi-caret-left-fill" style="font-size: 100%;"></i>
-                </button>
-
-                <button *ngIf="!isPlaying" class="btn p-1 m-1 border rounded-pill" (click)= "play()" [disabled] = "songOnPlay === undefined">
-                    <i  class=" bi bi-play-circle" style="font-size: 200%;"></i>
-                </button> 
-                <button *ngIf="isPlaying" class="btn p-1 m-1 border rounded-pill " (click)= "pause()">
-                    <i  class=" bi bi-pause-circle" style="font-size: 200%;"></i>
-                </button>
-
-                <button class="btn p-1 m-1 border rounded-pill">
-                    <i class="bi bi-caret-right-fill" style="font-size: 100%;"></i>
-                </button>
-                <button class="btn p-1 m-1 border rounded-pill">
-                    <i class="bi bi-arrow-repeat" style="font-size: 100%;"></i>
-                </button>
-                
+        <div class="col m-0 p-0" style="height: inherit;">
+            <mat-slider class= "w-100" 
+                [min]="0" 
+                [max]="audio.songDuration" 
+                [value] ="audio.currentPlayPoint"
+                [disabled] = "audio.currentTitle === ''"
+                (change) = "handleChange($event)"
+                (input) = "handleSlide($event)"
+            ></mat-slider>
+        </div>
+        <div class="col-2 m-0 p-0" style="width: 4em; height: inherit;">
+            <div class="pt-3">
+                {{durationString}}
             </div>
+        </div>
+    </div>
+    <!-- controls -->
+    <div class="row m-0 w-100 justify-content-center align-items-center">
+        <div class="col m-0 0ffset-md-3 mx-auto " align= "center">
+            <button class="btn p-0 ps-1 pe-1 m-1 border rounded-pill">
+                <i class="bi bi-shuffle" style="font-size: 75%;"></i>
+            </button>
+            <button class="btn p-0 ps-1 pe-1 m-1 border rounded-pill " (click)="playPrev()">
+                <i class="bi bi-caret-left-fill" style="font-size: 75%;"></i>
+            </button>
+
+            <button *ngIf="audio.isOnPause" class="btn p-0 ps-1 pe-1 m-1 border rounded-pill" (click)= "play()" [disabled] = "audio.currentTitle === ''">
+                <i  class=" bi bi-play-circle" style="font-size: 150%;"></i>
+            </button> 
+            <button *ngIf="!audio.isOnPause" class="btn p-0 ps-1 pe-1 m-1 border rounded-pill " (click)= "pause()">
+                <i  class=" bi bi-pause-circle" style="font-size: 150%;"></i>
+            </button>
+
+            <button class="btn p-0 ps-1 pe-1 m-1 border rounded-pill">
+                <i class="bi bi-caret-right-fill" style="font-size: 75%;"></i>
+            </button>
+            <button class="btn p-0 ps-1 pe-1 m-1 border rounded-pill">
+                <i class="bi bi-arrow-repeat" style="font-size: 75%;"></i>
+            </button>
             
         </div>
+        
     </div>
 </div>
+   
+    

@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { MatSliderChange } from '@angular/material/slider';
+import { AudioEvent, defaultEvent } from 'src/app/models/audio-event.model';
 import { ActivityService } from 'src/app/services/activity.service';
 import { AudioService } from 'src/app/services/audio.service';
 import { UserPrefService } from 'src/app/services/data/user-pref.service';
@@ -12,12 +13,8 @@ import { formatTime } from 'src/app/util/func';
 })
 export class SongPlayerComponent implements OnInit{
 
-  public songOnPlay: string;
-  public duration: number = 100;
-  public currentTime: number = 0;
-  public isPlaying = false;
+  public audio: AudioEvent = {...defaultEvent};
   public durationString: string ="00.00";
-  public isSliderDisabled = true;
   private timerStopped = true;
 
   constructor(
@@ -31,44 +28,31 @@ export class SongPlayerComponent implements OnInit{
 
   ngOnInit(): void {
     
-    this.songOnPlay = this.audioService.currentTitle;
-    this.isPlaying = !this.audioService.isOnPause;
-    this.duration = this.audioService.songDuration;
-    this.durationString = formatTime(this.duration);
-    this.currentTime = this.audioService.currentPlayPoint;
-    if(this.songOnPlay){
-      this.isSliderDisabled = false;
-    }
+    this.audio = this.audioService.audioEvent;
 
-    this.activityService._activitySubject.subscribe(activity => {
-      if(activity.type === 'play'){
+    // this.activityService._activitySubject.subscribe(activity => {
+    //   if(activity.type === 'play'){
 
-        if( !this.songOnPlay || this.songOnPlay!= activity.id){
-          this.songOnPlay = activity.id
-          this.duration = this.audioService.songDuration;
-          this.durationString = formatTime(this.duration);
-          this.isSliderDisabled = false;
-        }
-        
-        this.isPlaying = activity.data;
-        this.currentTime = this.audioService.currentPlayPoint;
-      }
-    });
-
- 
-
+    //     if( !this.songOnPlay || this.songOnPlay!= activity.id){
+    //       this.songOnPlay = activity.id
+    //       this.duration = this.audioService.songDuration;
+    //       this.durationString = ;
+    //       this.isSliderDisabled = false;
+    //     }
+    //   }
+    // });
   }
 
   handleSlide(event: MatSliderChange){
-    this.currentTime = event.value?? this.currentTime;
+    this.audio.currentPlayPoint = event.value?? this.audio.currentPlayPoint;
   }
 
   handleChange(event: MatSliderChange){
-    this.audioService.play(this.songOnPlay, event.value);
+    this.audioService.play(this.audio.currentTitle, event.value);
   }
 
   play(){
-    this.audioService.play(this.songOnPlay);
+    this.audioService.play(this.audio.currentTitle);
   }
 
   pause(){

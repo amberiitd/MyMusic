@@ -1,24 +1,35 @@
-<div class="container border" style="height: 900px">
-    <div class="mx-auto border" style="width: 50%; min-width: 40em; height: 80%; min-height: 30em; margin-top: 5em;">
+<div class="container" style="height: 900px;">
+    <div class="mx-auto border" style="width: 50%; min-width: 40em; height: 100%; min-height: 30em;  position: relative;">
         <div class="mt-2 mb-3" style="margin-left: 10%; margin-right: 10%;">
-            <ul class="nav nav-tabs">
+            <ul class="nav nav-tabs" style="position: relative;">
                 <li *ngFor="let tab of navTabs" class="nav-item">
-                    <a [ngClass]="{'nav-link': true, 'active': activeTabId===tab.id}" (click)= "activeTabId=tab.id">{{tab.name}}
-                    <a (click) = "refresh(tab.id)">
-                        <i class="bi bi-arrow-repeat"></i>
+                    <a [ngClass]="{'nav-link': true, 'active': activeTabId===tab.id}" (click)= "activeTabId=tab.id">
+                        {{tab.name}}
+                        <a (click) = "refresh(tab.id)">
+                            <i class="bi bi-arrow-repeat"></i>
+                        </a>
                     </a>
-                </a>
-                    
-
                 </li>
+                <div class="input-group mt-1" style="width: 10em; height: 2em; position: absolute; right: 2px;">
+                    <input class="form-control m-0 p-0" type="text" placeholder=" search..." [(ngModel)]="searchString" style=" font-size: 90%;">
+                    <button class="btn btn-primary m-0 p-0" (click)= "searchSong()">
+                        <i class="bi bi-search p-1"></i>
+                    </button>
+                </div>
+                
             </ul>
+            
         </div>
         <!-- body -->
-        <div class="mx-auto" style="height: 80%; width: 80%; min-width: 16em; overflow-y: auto;">
-            <div *ngIf="activeTabId===5" class ="h-100">
-                <app-song-player></app-song-player>
-            </div>
+        <div class="mx-auto" style="height: 75%; width: 80%; min-width: 16em; overflow-y: auto;">
             <div  *ngIf="activeTabId===1">
+                <app-category-board *ngIf="searchList.length !== 0"
+                    name ="Search Results"
+                    [songList] ="searchList"
+                    [playListNames] ="playListsNameInput"
+                    [viewOptions]= "{showCancel: true}"
+                    (rmView) = deleteCategory($event)
+                ></app-category-board>
                 <app-category-board 
                     name ="General"
                     [songList] ="songList"
@@ -38,9 +49,6 @@
             <div *ngIf="activeTabId===3">
                 <app-playlist 
                     [playLists]="playlists"
-                    (addNewPlaylist)= "addNewPlaylist($event)"
-                    (removeFromList)= "addToPlayList($event)"
-                    (addToFav)= "handleFavorite($event)"
                 ></app-playlist>
             </div>
             <!-- <div *ngIf="activeTabId===4">
@@ -60,11 +68,15 @@
                         [userPref] = 'song.userPref'
                         [playLists] = 'playListsNameInput'
                         (handleFav)= "handleFavorite($event)"
-                        (addToList)= "addToPlayList($event)"
                     ></app-song>
                 </div>
             </div> -->
         </div>
-        
+        <div class="w-100" style="position: absolute; bottom: 0px;">
+            <hr>
+            <div style="height: 10px;"></div>
+            <app-song-player></app-song-player>
+        </div>
     </div>
+    
 </div>

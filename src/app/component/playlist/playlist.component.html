@@ -1,18 +1,25 @@
 <div class="mx-auto mb-2 p-2 " style="width: 80%;">
-    <div class="row border-bottom mb-2 pb-2 justify-content-end">
-        <div class="col-4">
-            <div *ngIf="form.formActive" class="row">
-                <label for=""></label>
-                <input type="text" id="playListName" class="form-control mt-2" placeholder="playlist name" [(ngModel)]="form.listName">
-            </div>
-        </div>
-        <div class="col-2">
-            <button type="button" [ngClass]= "{'btn': true, 'px-1': true, 'btn-success': form.formActive}" (click)="handleNewPlayList()" >
-                <i class="bi bi-plus-square" style="font-size: 1.5em;"></i>
+    
+    <div class="mb-3" style="height: 2em;">
+        <div class="float-end">
+            <button [ngClass]= "{
+                    'btn': true,
+                    'p-0': true,
+                    'px-1': true,
+                    'm-0': true,
+                    'border': true,
+                    'btn-primary': form.formActive
+                }"
+                (click)="handleNewPlayList()" >
+                <i class="bi bi-plus"></i>
             </button>
+        </div>
+        <div class="float-end">
+            <input *ngIf="form.formActive" type="text" id="playListName" class="form-control m-0 p-0 float-end" placeholder="Playlist" [(ngModel)]="form.listName" style="height: inherit; font-size: 110%;">
         </div>
     </div>
     <div *ngFor="let pl of playLists">
+
         <div class="row">
             <div class="col-1">
                 <button class="btn btn-sm" (click)="toggleDropDown(pl.name)" >
@@ -20,16 +27,16 @@
                     <i *ngIf="pl.state.dropDownActive" class= "bi bi-caret-up"></i>
                 </button>
             </div>
-            <div class="col">
+            <div class="col-4">
                 {{pl.name}}
             </div>
-            <div class="float-end">
-                <button class="btn p-0">
-
+            <div class="col-1 offset-6">
+                <button class="btn p-0" (click)="deletePl(pl.name)">
+                    <i class="bi bi-x-lg"></i>
                 </button>
             </div>
         </div>
-        <div *ngIf="pl.state.dropDownActive">
+        <div *ngIf="pl.state.dropDownActive" class="d-flex flex-wrap">
             <app-song *ngFor="let song of pl.songs"
             [title] = 'song.title'
             [singer] = 'song.artist'
@@ -37,7 +44,7 @@
             [duration] = 'song.duration'
             [userPref] = 'song.userPref'
             [viewOptions]= "{ favorite: true, playlist: false, rmPlaylist: true}"
-            (addToList)= "remove($event, pl.name)"
+            (rmFromPl)= "remove(pl.name, $event)"
             (handleFav)= "addToFavorite($event)"></app-song>
         </div>
         <hr>

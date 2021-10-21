@@ -1,19 +1,32 @@
 <div class ="card m-0 mt-2" style="width: 95%; height: 14em;">
-    <div class="card-header p-0 ps-2" style="height: 2.5em;">
-        <h2 class="border-bottom-0">
-            {{name}}
-        </h2>
+    <div class="card-header p-0" style="height: 2.5em;">
+        <div class="m-2" style="font-size: 150%;">
+            <span class="mt-2">{{name}}</span>
+
+            <div class="float-end">
+                <button class="btn m-0 p-0 me-3" (click)="moveStartIndex(-1)" [disabled] = "!canMoveLeft">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <button class="btn m-0 p-0 me-3" (click)="moveStartIndex(1)" [disabled] = "!canMoveRight">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+                <button *ngIf="viewOptions.showCancel" class="btn m-0 p-0 " (click)= cancelView()>
+                    <i class="bi bi-x-square"></i>
+                </button>
+            </div>
+            
+        </div>
+        
     </div>
 <!--   -->
     <div class="d-flex " style="padding-bottom: 260px; margin-bottom: -260px; overflow-x: hidden;" >
-        <app-song *ngFor="let song of songList" [title] = 'song.title'
+        <app-song *ngFor="let song of songList.slice(startIndex)" [title] = 'song.title'
             [singer] = 'song.artist'
             [album] = 'song.album'
             [duration] = 'song.duration'
             [userPref] = 'song.userPref'
             [playLists] = 'playListNames'
             (handleFav)= "dummy($event)"
-            (addToList)= "dummy($event)"
         ></app-song>
     </div>
     

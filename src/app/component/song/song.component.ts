@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { floor, isNil } from 'lodash';
+import { AudioEvent, defaultEvent } from 'src/app/models/audio-event.model';
 import { UserPrefService } from 'src/app/services/data/user-pref.service';
 import { Duration, UserPreference } from '../../models/song.model';
 import { ActivityService } from '../../services/activity.service';
@@ -21,15 +22,14 @@ export class SongComponent implements OnInit, OnChanges {
   @Input() public playLists: ReadonlyArray<string>=[];
   @Input() public viewOptions: any= {favorite: true, playlist: true};
   @Output() public readonly handleFav= new EventEmitter<any>();
-  @Output() public readonly addToList= new EventEmitter<any>();
+  @Output() public readonly rmFromPl = new EventEmitter<any>();
 
   public durationFormatted: string= '00:00:00';
-  public isOnPlay = false;
   public isFav= false;
-  public audioFile: Blob;
-  public imageBytes: any ;
-  public downloadFile: any;
+  public image: {data: string} ={data: ""};
   public showPlay: boolean=  false;
+  public value = 25;
+  public audio : AudioEvent = {...defaultEvent};
 
   constructor(
     private detector: ChangeDetectorRef,
@@ -43,20 +43,15 @@ export class SongComponent implements OnInit, OnChanges {
 
   ngOnInit() {
 
-    if (this.audioService.currentTitle === this.title){
-      this.isOnPlay = !this.audioService.isOnPause;
+    if (this.audioService.audioEvent.currentTitle === this.title){
+      this.audio = this.audioService.audioEvent;
     }
 
     if(this.userPrefService.isFavorite(this.title)){
       this.isFav = true;
     }
 
-    this.songService.getImage(this.title).subscribe(
-      response =>{
-        this.toImgageString(response);
-      }
-    );
-
+    this.songService.getImage(this.title, this.image);
 
     this.activityService._activitySubject.subscribe(activity => {
         switch(activity.type){
@@ -68,9 +63,9 @@ export class SongComponent implements OnInit, OnChanges {
   
           case "play":
             if (this.title === activity.id){
-              this.isOnPlay = activity.data;
-            }else if (this.isOnPlay){
-              this.isOnPlay = false;
+              this.audio = this.audioService.audioEvent;
+            }else{
+              this.audio = {...defaultEvent};
             }
             break;
   
@@ -86,14 +81,6 @@ export class SongComponent implements OnInit, OnChanges {
 
 
   ngOnChanges(changes: SimpleChanges): void {
-      if(this.hasBindingChanged(changes, 'duration')){
-        this.durationFormatted = this.formatDuration(this.duration);
-      }
-
-      if(this.hasBindingChanged(changes, 'userPref')){
-        this.isFav= this.userPref.favorite != undefined? this.userPref.favorite: this.isFav;
-        this.isOnPlay =  this.userPref.onPlay != undefined? this.userPref.onPlay: this.isOnPlay;
-      }
       
   }
 
@@ -128,10 +115,8 @@ export class SongComponent implements OnInit, OnChanges {
 
   }
 
-  public removeFromPlaylist(plName: string){
-    this.addToList.emit({plName, songName: this.title, add: true});
-    // this.userPrefService.removeFromPlayList(plName, this.title);
-
+  public removeFromPlaylist(){
+    this.rmFromPl.emit(this.title);
   }
 
   play(){
@@ -146,15 +131,6 @@ export class SongComponent implements OnInit, OnChanges {
   download(){
 
   }
-  
-  toImgageString(source: Blob){
-    var reader = new FileReader();
-    reader.readAsDataURL(source); 
-    reader.onload = (e) => {
-        this.imageBytes = e.target?.result;
-    };
-    // window.open(window.URL.createObjectURL(source));
-  }
 
   hoverOnImg(){
     this.showPlay = true;
@@ -163,5 +139,13 @@ export class SongComponent implements OnInit, OnChanges {
 
   hoverOffImg(){
     this.showPlay = false;
+  }
+
+  getPlayedPercentage(){
+    if(this.audio.currentTitle !== ''){
+      return Math.floor(this.audio.currentPlayPoint* 100 /this.audio.songDuration) + '%';
+
+    }
+    return '0%';
   }
 }

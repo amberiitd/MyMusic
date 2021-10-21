@@ -5,6 +5,7 @@ export interface Song{
     album: string;
     duration: Duration;
     userPref: UserPreference;
+    img?: Blob;
 }
 
 export interface SongResponseDTO{

@@ -4,6 +4,7 @@ import { PlayList, PlayListDTO, Song } from "src/app/models/song.model";
 import { ActivityService } from "../activity.service";
 import { UserService } from "../user.service";
 import { SongService } from "./song.service";
+import { SongQuery } from "./songQuery.model";
 
 @Injectable()
 export class UserPrefService{
@@ -13,20 +14,19 @@ export class UserPrefService{
     public favList: Song[] = [];
     public recents: Song[] = [];
     public playLists : PlayList[] =[];
+    public playListNames: Array<string> =[];
 
     public constructor(
         private readonly httpClient: HttpClient,
         private readonly userService: UserService,
         private readonly songService: SongService,
         private readonly activityService: ActivityService
-    ){
-        
-    }
-    
+    ){ }
+
     public init(){
         this.getFavSongs();
+        this.getPlayLists();
         this.getRecentlyPlayedSongs();
-        this.getPlayLists()
     }
 
     public isFavorite(title: string) {
@@ -37,7 +37,6 @@ export class UserPrefService{
 
         this.favList.push(this.songService.getSong(title));
         this.activityService._favListUpdate.next();
-        this.activityService._activitySubject.next({id: title, type: 'favorite', data: null})
 
         const options = {
             headers: {
@@ -59,7 +58,6 @@ export class UserPrefService{
         const index = this.favList.findIndex(song => song.title === title);
         this.favList.splice(index, 1);
         this.activityService._favListUpdate.next();
-        this.activityService._activitySubject.next({id: title, type: 'favorite', data: null})
 
         const options = {
             headers: {
@@ -79,9 +77,11 @@ export class UserPrefService{
     public addToPlayList(plName: string, title: string){
 
         const pl = this.playLists.find(pl => pl.name === plName)
-        pl?.songs.push(this.songService.getSong(title));
-        this.activityService._playlistUpdate.next();
+        const index = pl?.songs.findIndex(s => s.title === title);
 
+        if (index && index >=0){
+            pl?.songs.push(this.songService.getSong(title));
+        }
 
         const options = {
             headers: {
@@ -105,7 +105,6 @@ export class UserPrefService{
         if (index >=0 ){
             pl?.songs.splice(index, 1);
         }
-        this.activityService._playlistUpdate.next();
 
         const options = {
             headers: {
@@ -124,7 +123,7 @@ export class UserPrefService{
 
     public createPlayList(plName: string){
         this.playLists.push({name: plName, songs: [], state: {}});
-        this.activityService._playlistUpdate.next();
+        this.playListNames.push(plName);
 
         const options = {
             headers: {
@@ -144,7 +143,7 @@ export class UserPrefService{
     public deletePlayList(plName: string){
         const index = this.playLists.findIndex(pl => pl.name === plName);
         this.playLists.splice(index, 1);
-        this.activityService._playlistUpdate.next();
+        this.playListNames.splice(index, 1);
 
         const options = {
             headers: {
@@ -170,11 +169,10 @@ export class UserPrefService{
         await this.httpClient.get<ReadonlyArray<string>>(this.mymApi + "/user-pref/fav",options)
         .subscribe(
             titles =>{
-                this.songService.getSongsObservable(titles)
-                    .subscribe( songs =>{
-                        this.favList = songs;
-                        this.activityService._favListUpdate.next();
-                    });
+                const query: SongQuery = {
+                    in: [...titles]
+                };
+                this.songService.fetchSongs(this.favList, query);
             }
         );
     }
@@ -187,39 +185,37 @@ export class UserPrefService{
         };
         await this.httpClient.get<ReadonlyArray<PlayListDTO>>(this.mymApi + "/user-pref/playlist",options)
         .subscribe(
-            response => response.forEach(async plDTO =>{
-                    
-                await this.songService.getSongsObservable(plDTO.songs)
-                .subscribe( songList =>{
-                    this.playLists.push(
-                        {
-                            name: plDTO.plName,
-                            songs: songList,
-                            state:{}
-                        }
-                    );
-                    this.activityService._playlistUpdate.next();
-                })
-                    
+            response => response.forEach(plDTO =>{
+                
+                const pl: PlayList = {
+                    name: plDTO.plName,
+                    songs: [],
+                    state:{}
+                }
+                this.playListNames.push(plDTO.plName);
+                this.playLists.push(pl);
+                const query: SongQuery ={
+                    in : [...plDTO.songs]
+                };
+                this.songService.fetchSongs(pl.songs, query);      
             })
         );
 
     }
 
-    public async getRecentlyPlayedSongs(){
+    public getRecentlyPlayedSongs(){
         const options = {
             headers: {
                 "Authorization": "Bearer "+  this.userService.getOAuthToken()
             }
         };
-        await this.httpClient.get<ReadonlyArray<string>>(this.mymApi + "/user-pref/recent",options)
+        this.httpClient.get<ReadonlyArray<string>>(this.mymApi + "/user-pref/recent",options)
         .subscribe(
             titles =>{
-                this.songService.getSongsObservable(titles)
-                    .subscribe( songs =>{
-                        this.recents = songs;
-                        this.activityService._playHistoryUpdate.next();
-                    });
+                const query: SongQuery={
+                    in: [...titles]
+                }
+                this.songService.fetchSongs(this.recents, query);
             }
         );
 
@@ -227,7 +223,6 @@ export class UserPrefService{
 
     public addToRecent(title: string){
         this.recents.push(this.songService.getSong(title));
-        this.activityService._playHistoryUpdate.next();
 
         const options = {
             headers: {
