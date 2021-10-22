@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { isEmpty } from 'lodash';
 import { PlayList, Song } from '../models/song.model';
+import { ActivityService } from '../services/activity.service';
 import { AudioService } from '../services/audio.service';
 import { SongService } from '../services/data/song.service';
+import { SongQuery } from '../services/data/songQuery.model';
+import { UserPrefService } from '../services/data/user-pref.service';
 import { UserService } from '../services/user.service';
 
 @Component({
@@ -19,15 +22,15 @@ export class MusicHomeComponent implements OnInit {
   public activeTabId: number = 1;
   public playListsNameInput: string[] =[]
   public playHistory: Song[]=[];
+  public searchList: Song[] =[];
   public onPlaySongIndex = -1;
+  public searchString ='';
 
   constructor(
     private readonly songService: SongService,
-    private readonly audioService: AudioService,
-    private readonly userService: UserService
-    ) {
-      songService.init();
-  }
+    private readonly userPrefService: UserPrefService,
+    ) {}    
+  
 
   ngOnInit(): void {
     this.navTabs =[
@@ -36,80 +39,23 @@ export class MusicHomeComponent implements OnInit {
         name: 'songs',
       },
       {
-        id: 2,
-        name: 'favorites',
-      },
-      {
         id: 3,
         name: 'playlist'
-      },
-      {
-        id: 4,
-        name: 'history'
-      },{
-        id: 5,
-        name: 'player'
       }
     ]
+    this.songService.init();
+    this.userPrefService.init();
 
-    this.songService.songListSubject.subscribe(
-      songList => {this.songList = songList}
-    );
-
-    this.songList.forEach(song =>{
-      if (song.userPref && song.userPref.favorite){
-        this.favorites.push(song);
-      }
-    })
-
-    this.playlists =[
-      {
-        name: 'Azra',
-        songs: this.songList.slice(0,2),
-        state: {dropDownActive: false,}
-      },
-      {
-        name: 'Amber',
-        songs: [],
-        state: {dropDownActive: false,}
-      }
-    ];
-
-    this.playListsNameInput = this.playlists.map(pl => pl.name);
-
-    this.audioService.songOnPlay$.subscribe(data =>{
-      const index = this.songList.findIndex(s => s.title === data);
-
-      if(this.onPlaySongIndex >= 0){
-        this.songList[this.onPlaySongIndex].userPref = {
-          ...this.songList[this.onPlaySongIndex].userPref,
-          onPlay: false
-        };
-      }
-  
-      if(index !== this.onPlaySongIndex){
-        this.songList[index].userPref = {
-          ...this.songList[index].userPref,
-          onPlay: true
-        };
-        this.onPlaySongIndex = index;
-
-        //push to history
-        if(isEmpty(this.playHistory) || this.playHistory[0].title !== this.songList[index].title){
-          this.playHistory= [this.songList[index], ...this.playHistory.slice(0, 10)];
-        }
-      }else{
-        this.onPlaySongIndex = -1;
-      }
-    });
-
+    this.songList = this.songService.localSongRepo;
+    this.favorites = this.userPrefService.favList;
+    this.playHistory = this.userPrefService.recents;
+    this.playlists = this.userPrefService.playLists;
+    this.playListsNameInput = this.userPrefService.playListNames;
 
   }
 
   refresh(tabId: number){
-    if (tabId === 1){
-      this.songService.refresh();
-    }
+    
   }
 
   handleFavorite(fav: {title: string, flag: number}){
@@ -127,21 +73,20 @@ export class MusicHomeComponent implements OnInit {
     }
   }
 
-  addNewPlaylist(pl: PlayList){
-    this.playlists.push(pl);
-    this.playListsNameInput = this.playlists.map(pl => pl.name);
+  searchSong(){
+    if(this.searchString.length < 3){
+      return;
+    }
+    const query: SongQuery = {
+      title: this.searchString
+    }
+    this.searchList = [];
+    this.songService.fetchSongs(this.searchList, query);
   }
 
-  addToPlayList(param: {plName: string, songName: string, add: boolean}){
-    const plIndex= this.playlists.findIndex(pl => pl.name=== param.plName) ;
-    const songIndex= this.songList.findIndex(s => s.title === param.songName);
-    if(plIndex >= 0 && songIndex >=0 ){
-      const index = this.playlists[plIndex].songs.findIndex(s => s.title=== param.songName);
-      if(index < 0 && param.add){
-        this.playlists[plIndex].songs.push(this.songList[songIndex]);
-      }else if(index >= 0 && !param.add){
-        this.playlists[plIndex].songs.splice(index, 1);
-      }
+  deleteCategory(cat: string){
+    if(cat === "Search Results"){
+      this.searchList =[];
     }
   }
 

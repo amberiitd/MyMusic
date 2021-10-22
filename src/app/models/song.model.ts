@@ -5,6 +5,7 @@ export interface Song{
     album: string;
     duration: Duration;
     userPref: UserPreference;
+    img?: Blob;
 }
 
 export interface SongResponseDTO{
@@ -26,9 +27,14 @@ export interface UserPreference{
 }
 
 export interface PlayList{
-    name: string,
-    songs: Song[], 
+    name: string;
+    songs: Song[];
     state: {
         dropDownActive?: boolean;
     }
+}
+
+export interface PlayListDTO{
+    plName: string;
+    songs: string[];
 }

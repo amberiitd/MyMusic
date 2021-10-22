@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { isEmpty } from 'lodash';
-import { UserService } from '../services/user.service';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-login',
@@ -21,17 +21,21 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     this.loginStatus = this.userService.context.isAuthenticated ? "success": "blank";
+    this.userService.refreshAuth.subscribe(() =>{
+      if (this.userService.context.isAuthenticated ){
+        this.loginStatus = "success"
+      }else{
+        this.loginStatus = "error";
+        this.errorMsg = "Could not Authorize!"
+      }
+    });
   }
 
   login(){
     this.loginStatus = "loading";
 
     if (!isEmpty(this.form.username.trim()) && !isEmpty(this.form.password.trim())){
-      if (this.userService.authenticate(this.form.username, this.form.password)){
-        this.loginStatus = "success"
-      }else{
-        this.loginStatus = "error"
-      }
+      this.userService.authenticate(this.form.username, this.form.password);
     }else{
       this.loginStatus = "error";
       this.errorMsg = "Empty or wrong input!"

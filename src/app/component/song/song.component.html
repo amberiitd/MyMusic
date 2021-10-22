@@ -1,0 +1,67 @@
+<div class=" card m-2 p-1" style="width: 7em; height: 9em;" (mouseenter)="hoverOnImg()" (mouseleave)="hoverOffImg()">
+    <!--  -->
+    
+        <img class="card-img" [id] = "title" [src]="image.data" alt="icon" style="height: 80%;">
+    
+    <div class="card-img-overlay p-0">
+            <div class="dropdown p-1 m-1 ms-0 border rounded-pill float-end">
+                <button type="button" class="btn p-0" [id]="title+'actionList'" data-bs-toggle = "dropdown">
+                    <i class="bi bi bi-three-dots-vertical"></i>
+                </button>
+                <ul class="dropdown-menu " (click)="$event.stopPropagation()" [attr.aria-labelledby]="title+'actionList'">
+                    <li >
+                        <ul class="list-group list-group-horizontal">
+                            <li class="list-group-item p-0">
+                                <div *ngIf="viewOptions.playlist" class="dropdown p-1 m-2 border rounded-pill">
+                                    <button type="button" class="btn p-0" [id]="title+'PlaylistDropDown'" data-bs-toggle = "dropdown">
+                                        <i class="bi bi-music-note-list"></i>
+                                    </button>
+                                    <ul class="dropdown-menu" [attr.aria-labelledby]="title+'PlaylistDropDown'">
+                                        <li *ngFor="let pl of playLists">
+                                            <a class="dropdown-item" (click)= "addToPlaylist(pl)">{{pl}}</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div *ngIf="viewOptions.rmPlaylist" class="p-1 m-2 border rounded-pill float-end">
+                                    <button  type="button" class="btn p-0 " (click)="removeFromPlaylist()">
+                                        <i class="bi bi-dash-square"></i>
+                                    </button>
+                                </div>
+                            </li>
+                            <li class="list-group-item p-0">
+                                <div *ngIf="viewOptions.favorite" class="p-1 m-2 border rounded-pill">
+                                    <a  type="button" class="btn p-0">
+                                        <i class="bi bi-download"></i>
+                                    </a>
+                                </div>
+                            </li>
+                            <li class="list-group-item p-0">
+                                <div *ngIf="viewOptions.favorite" class="p-1 m-2 border rounded-pill">
+                                    <button  type="button" class="btn p-0" (click)="heart()">
+                                        <i *ngIf="!isFav" class="bi bi-heart"></i>
+                                        <i *ngIf="isFav" class="bi bi-heart-fill" ></i>
+                                    </button>
+                                </div>
+                            </li>
+                        </ul>  
+                    </li>
+                </ul>
+            </div>
+        <div class="row m-0 ms-4 mt-3 p-0"  >
+            <button *ngIf="showPlay && audio.isOnPause" type="button" class="btn p-0 m-0"  (click)= "play()" style="height: 4em; width: 4em;">
+                <i class="bi bi-play-circle" style="font-size: 3em;"></i>
+            </button>
+            <button *ngIf="showPlay && !audio.isOnPause" type="button" class="btn p-0 m-0"  (click)= "pause()" style="height: 4em; width: 4em;">
+                <i class="bi bi-pause-circle" style="font-size: 3em;"></i>
+            </button>
+        </div>
+    </div>
+    <div class="card-body p-0 cut-text">
+        <a>
+            {{title}}
+        </a>
+        <div *ngIf="audio.currentTitle !== '' " class="progress">
+            <div class="progress-bar progress-bar-striped" role="progressbar" [ngStyle]="{width: getPlayedPercentage()}"attr.aria-valuenow="25" aria-valuemin="0" [attr.aria-valuemax]="audio.songDuration"></div>
+        </div>
+    </div>
+</div>
