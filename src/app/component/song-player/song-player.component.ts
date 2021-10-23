@@ -16,6 +16,7 @@ export class SongPlayerComponent implements OnInit{
   public audio: AudioEvent = {...defaultEvent};
   public durationString: string ="00.00";
   private timerStopped = true;
+  public formatTime = formatTime;
 
   constructor(
     public readonly audioService: AudioService,
@@ -48,11 +49,11 @@ export class SongPlayerComponent implements OnInit{
   }
 
   handleChange(event: MatSliderChange){
-    this.audioService.play(this.audio.currentTitle, event.value);
+    this.audioService.play(this.audio.currentSongInfo, event.value);
   }
 
   play(){
-    this.audioService.play(this.audio.currentTitle);
+    this.audioService.play(this.audio.currentSongInfo);
   }
 
   pause(){
@@ -60,6 +61,24 @@ export class SongPlayerComponent implements OnInit{
   }
 
   playPrev(){
-
+    this.audioService.pause();
+    this.activityService._audioActivitySubject.next({song: this.audio.currentSongInfo, type: 'playPrev', data: null});
   }
+
+  playNext(){
+    this.audioService.pause();
+    this.activityService._audioActivitySubject.next({song: this.audio.currentSongInfo, type: 'playNext', data: null});
+  }
+
+  loop(){
+    this.audio.loop = !this.audio.loop;
+    this.audio.shuffle = false;
+  }
+
+  shuffle(){
+    this.audio.loop = false;
+    this.audio.shuffle = !this.audio.shuffle;
+  }
+
+
 }

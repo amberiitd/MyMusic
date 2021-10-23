@@ -8,4 +8,6 @@ export interface SongQuery{
     or?: Array<SongQuery>;
     and?: Array<SongQuery>;
     in?: Array<string>;
+    limit?: number;
+    offset?: number;
 }

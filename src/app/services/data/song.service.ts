@@ -2,10 +2,10 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Subject } from "rxjs";
 import { map } from "rxjs/operators";
-import { Song, SongResponseDTO } from "src/app/models/song.model";
+import { Song, SongResponseDTO, SongState } from "src/app/models/song.model";
 import { ActivityService } from "../activity.service";
 import { UserService } from "../user.service";
-import { SongQuery } from "./songQuery.model";
+import { SongQuery } from "../../models/songQuery.model";
 
 @Injectable(
     {providedIn: "root"}
@@ -25,7 +25,7 @@ export class SongService{
         
     }
     public init(){
-        this.fetchSongs([], {});
+        this.fetchSongs([], {limit: 10, offset: Math.floor(300*Math.random())});
     }
     public fetchSongs(songList: Array<Song>, query: SongQuery){
 
@@ -42,8 +42,13 @@ export class SongService{
 
     public fetchSongBlob(title: string, blob: {data: Blob}) {
         
-        const options2 = {headers: { "Authorization": "Bearer "+ this.userService.getOAuthToken()}, responseType: 'blob' as 'json'};
-        return this.httpClient.get<Blob>("http://localhost:8080/song/get-source" + "?title=" + title, options2);
+        const options2 = {
+            headers: { "Authorization": "Bearer "+ this.userService.getOAuthToken()}, responseType: 'blob' as 'json',
+            params: {
+                "title": title
+            }
+    };
+        return this.httpClient.get<Blob>("http://localhost:8080/song/get-source", options2);
     }
 
     getSong(id: string): Song {
@@ -85,9 +90,8 @@ export class SongService{
                 title: songDTO.title, 
                 album: songDTO.album, 
                 artist: songDTO.artist, 
-                duration: songDTO.duration,
-                userPref: {}
-              } as Song;
+                duration: songDTO.duration
+            } as Song;
           }
         );
     }
@@ -100,6 +104,7 @@ export class SongService{
             }
         });
     }
+
 
 
 }

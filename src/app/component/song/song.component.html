@@ -1,22 +1,22 @@
 <div class=" card m-2 p-1" style="width: 7em; height: 9em;" (mouseenter)="hoverOnImg()" (mouseleave)="hoverOffImg()">
     <!--  -->
     
-        <img class="card-img" [id] = "title" [src]="image.data" alt="icon" style="height: 80%;">
+        <img class="card-img" [id] = "song.title" [src]="image.data" alt="icon" style="height: 80%;">
     
     <div class="card-img-overlay p-0">
             <div class="dropdown p-1 m-1 ms-0 border rounded-pill float-end">
-                <button type="button" class="btn p-0" [id]="title+'actionList'" data-bs-toggle = "dropdown">
+                <button type="button" class="btn p-0" [id]="song.title+'actionList'" data-bs-toggle = "dropdown">
                     <i class="bi bi bi-three-dots-vertical"></i>
                 </button>
-                <ul class="dropdown-menu " (click)="$event.stopPropagation()" [attr.aria-labelledby]="title+'actionList'">
+                <ul class="dropdown-menu " (click)="$event.stopPropagation()" [attr.aria-labelledby]="song.title+'actionList'">
                     <li >
                         <ul class="list-group list-group-horizontal">
                             <li class="list-group-item p-0">
                                 <div *ngIf="viewOptions.playlist" class="dropdown p-1 m-2 border rounded-pill">
-                                    <button type="button" class="btn p-0" [id]="title+'PlaylistDropDown'" data-bs-toggle = "dropdown">
+                                    <button type="button" class="btn p-0" [id]="song.title+'PlaylistDropDown'" data-bs-toggle = "dropdown">
                                         <i class="bi bi-music-note-list"></i>
                                     </button>
-                                    <ul class="dropdown-menu" [attr.aria-labelledby]="title+'PlaylistDropDown'">
+                                    <ul class="dropdown-menu" [attr.aria-labelledby]="song.title+'PlaylistDropDown'">
                                         <li *ngFor="let pl of playLists">
                                             <a class="dropdown-item" (click)= "addToPlaylist(pl)">{{pl}}</a>
                                         </li>
@@ -58,9 +58,9 @@
     </div>
     <div class="card-body p-0 cut-text">
         <a>
-            {{title}}
+            {{song.title}}
         </a>
-        <div *ngIf="audio.currentTitle !== '' " class="progress">
+        <div *ngIf="audio.currentSongInfo.title !== '' " class="progress">
             <div class="progress-bar progress-bar-striped" role="progressbar" [ngStyle]="{width: getPlayedPercentage()}"attr.aria-valuenow="25" aria-valuemin="0" [attr.aria-valuemax]="audio.songDuration"></div>
         </div>
     </div>

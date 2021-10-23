@@ -1,8 +1,9 @@
-import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { AfterContentChecked, ChangeDetectorRef, Component, EventEmitter, HostListener, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { floor, isNil } from 'lodash';
+import { Subscription } from 'rxjs';
 import { AudioEvent, defaultEvent } from 'src/app/models/audio-event.model';
 import { UserPrefService } from 'src/app/services/data/user-pref.service';
-import { Duration, UserPreference } from '../../models/song.model';
+import { Duration, Song } from '../../models/song.model';
 import { ActivityService } from '../../services/activity.service';
 import { AudioService } from '../../services/audio.service';
 import { SongService } from '../../services/data/song.service';
@@ -14,22 +15,18 @@ import { SongService } from '../../services/data/song.service';
 })
 export class SongComponent implements OnInit, OnChanges {
 
-  @Input() public title: string;
-  @Input() public singer: string;
-  @Input() public album: string;
-  @Input() public duration: Duration;
-  @Input() public userPref: UserPreference={};
+  @Input() public category: string;
+  @Input() public song: Song;
   @Input() public playLists: ReadonlyArray<string>=[];
   @Input() public viewOptions: any= {favorite: true, playlist: true};
-  @Output() public readonly handleFav= new EventEmitter<any>();
   @Output() public readonly rmFromPl = new EventEmitter<any>();
+  @Output() public readonly toParent = new EventEmitter<{title: string, type: 'next' |'prev' | 'random'}>();
 
-  public durationFormatted: string= '00:00:00';
   public isFav= false;
   public image: {data: string} ={data: ""};
   public showPlay: boolean=  false;
-  public value = 25;
   public audio : AudioEvent = {...defaultEvent};
+  private activitySubscription: Subscription;
 
   constructor(
     private detector: ChangeDetectorRef,
@@ -39,93 +36,60 @@ export class SongComponent implements OnInit, OnChanges {
     private readonly userPrefService: UserPrefService
     ) { }
 
-
-
   ngOnInit() {
 
-    if (this.audioService.audioEvent.currentTitle === this.title){
+    if (this.audioService.audioEvent.currentSongInfo.title === this.song.title){
       this.audio = this.audioService.audioEvent;
     }
 
-    if(this.userPrefService.isFavorite(this.title)){
+    if(this.userPrefService.isFavorite(this.song.title)){
       this.isFav = true;
     }
 
-    this.songService.getImage(this.title, this.image);
-
-    this.activityService._activitySubject.subscribe(activity => {
-        switch(activity.type){
-          case "favorite":
-            if (this.title === activity.id){
-              this.isFav = !this.isFav;
-            }
-            break;
-  
-          case "play":
-            if (this.title === activity.id){
-              this.audio = this.audioService.audioEvent;
-            }else{
-              this.audio = {...defaultEvent};
-            }
-            break;
-  
-          default:
-  
-        }
-
-        this.detector.detectChanges();
-    });
+    this.songService.getImage(this.song.title, this.image);
+    this.subscribeToActivity();
+        
   }
-
-
-
 
   ngOnChanges(changes: SimpleChanges): void {
-      
-  }
-
-  private formatDuration(duration: Duration): string {
-    let _sec = `${duration?.sec % 60}`;
-    let _min = `${(duration?.min + floor(duration?.sec/60)) % 60}`;
-    let _hour = `${duration?.hour + floor((duration?.min + floor(duration?.sec/60)) / 60)}`;
     
-    _sec = _sec.length === 1? `0${_sec}`: _sec;
-    _min = _min.length === 1? `0${_min}`: _min;
-    _hour = _hour.length === 1? `0${_hour}`: _hour;
-
-    return _hour+ ':'+ _min+ ':' + _sec;
-  }
-
-  private hasBindingChanged(changes: SimpleChanges, input: string){
-    return !isNil(changes[input]);
+      
   }
 
   public heart(){
     if (this.isFav){
-      this.userPrefService.removeFromFav(this.title);
+      this.userPrefService.removeFromFav(this.song.title);
     }else{
-      this.userPrefService.addToFav(this.title);
+      this.userPrefService.addToFav(this.song.title);
     }
-    // this.handleFav.emit({title: this.title, flag: this.isFav? -1: 1});
+
   }
 
   public addToPlaylist(plName: string){
-    // this.addToList.emit({plName, songName: this.title, add: true});
-    this.userPrefService.addToPlayList(plName, this.title);
+    // this.addToList.emit({plName, songName: this.song.title, add: true});
+    this.userPrefService.addToPlayList(plName, this.song.title);
 
   }
 
   public removeFromPlaylist(){
-    this.rmFromPl.emit(this.title);
+    this.rmFromPl.emit(this.song.title);
   }
 
   play(){
-    this.userPrefService.addToRecent(this.title);
-    this.audioService.play(this.title);
+    if(this.audio.currentSongInfo.title !== this.song.title){
+      this.userPrefService.addToRecent(this.song.title);
+        this.audioService.play({title: this.song.title, category: this.category});
+    }else{
+      this.resume()
+    }
   }
 
   pause(){
     this.audioService.pause();
+  }
+
+  resume(){
+    this.audioService.play(this.audio.currentSongInfo);
   }
 
   download(){
@@ -142,10 +106,69 @@ export class SongComponent implements OnInit, OnChanges {
   }
 
   getPlayedPercentage(){
-    if(this.audio.currentTitle !== ''){
+    if(this.audio.currentSongInfo.title !== ''){
       return Math.floor(this.audio.currentPlayPoint* 100 /this.audio.songDuration) + '%';
 
     }
     return '0%';
+  }
+
+  private subscribeToActivity(){
+    this.activitySubscription= this.activityService._audioActivitySubject.subscribe( activity =>{
+      switch(activity.type){
+        case "play":
+          if (this.song.title === activity.song.title){
+            this.audio = this.audioService.audioEvent;
+          }else{
+            this.audio = {...defaultEvent};
+          }
+          break;
+
+        case "pause":
+          
+          break;
+        
+        case "stop":
+          if (this.song.title === activity.song.title && this.category === activity.song.category){
+            this.audio = {...defaultEvent};
+            if(this.audioService.audioEvent.loop){
+              this.toParent.emit({title: this.song.title, type: 'next'});
+            }else if(this.audioService.audioEvent.shuffle){
+              this.toParent.emit({title: this.song.title, type: 'random'});
+            }
+            
+          }
+          break;
+
+        case "playNext":
+          if (this.song.title === activity.song.title && this.category === activity.song.category){
+            this.audio = {...defaultEvent};
+            this.toParent.emit({title: this.song.title, type: 'next'});
+          }
+          break;
+        
+        case "playPrev":
+          if (this.song.title === activity.song.title && this.category === activity.song.category){
+            this.audio = {...defaultEvent};
+            this.toParent.emit({title: this.song.title, type: 'prev'});
+          }
+          break;
+
+        default:
+
+      }
+    });
+
+    this.activityService._favoriteToggle.subscribe(
+      event =>{
+        if(this.song.title === event.title){
+          this.isFav = !this.isFav;
+        }
+      }
+    )
+  }
+
+  private hasBindingChanged(changes: SimpleChanges, input: string){
+    return !isNil(changes[input]);
   }
 }

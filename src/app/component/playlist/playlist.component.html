@@ -38,14 +38,10 @@
         </div>
         <div *ngIf="pl.state.dropDownActive" class="d-flex flex-wrap">
             <app-song *ngFor="let song of pl.songs"
-            [title] = 'song.title'
-            [singer] = 'song.artist'
-            [album] = 'song.album'
-            [duration] = 'song.duration'
-            [userPref] = 'song.userPref'
-            [viewOptions]= "{ favorite: true, playlist: false, rmPlaylist: true}"
-            (rmFromPl)= "remove(pl.name, $event)"
-            (handleFav)= "addToFavorite($event)"></app-song>
+                [song] = 'song'
+                [viewOptions]= "{ favorite: true, playlist: false, rmPlaylist: true}"
+                (rmFromPl)= "remove(pl.name, $event)"
+            ></app-song>
         </div>
         <hr>
     </div>

@@ -4,7 +4,7 @@ import { PlayList, Song } from '../models/song.model';
 import { ActivityService } from '../services/activity.service';
 import { AudioService } from '../services/audio.service';
 import { SongService } from '../services/data/song.service';
-import { SongQuery } from '../services/data/songQuery.model';
+import { SongQuery } from '../models/songQuery.model';
 import { UserPrefService } from '../services/data/user-pref.service';
 import { UserService } from '../services/user.service';
 
@@ -56,21 +56,6 @@ export class MusicHomeComponent implements OnInit {
 
   refresh(tabId: number){
     
-  }
-
-  handleFavorite(fav: {title: string, flag: number}){
-    const index= this.songList.findIndex(song => song.title === fav.title);
-    const song = index >=0? this.songList[index]: undefined;
-
-    if(fav.flag > 0 && song){
-        song.userPref= song.userPref? {...song.userPref, favorite: true}: {favorite: true};
-        this.favorites.push(song);
-    }else if(song){
-      if(song.userPref){
-        song.userPref= song.userPref? {...song.userPref, favorite: false}: {favorite: false};
-      }
-      this.favorites = this.favorites.filter(s => s.title !== fav.title)
-    }
   }
 
   searchSong(){

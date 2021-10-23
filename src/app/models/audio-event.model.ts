@@ -1,13 +1,22 @@
 export interface AudioEvent{
     currentPlayPoint: number;
     songDuration: number;
-    currentTitle : string;
+    currentSongInfo : AudioSongInfo;
     isOnPause: boolean;
+    loop: boolean;
+    shuffle: boolean;
 }
 
 export const defaultEvent: AudioEvent = {
     currentPlayPoint: 0,
     songDuration: 0,
-    currentTitle: "",
-    isOnPause: true
+    currentSongInfo: {title: "", category: ""},
+    isOnPause: true,
+    loop: false,
+    shuffle: false
+}
+
+export interface AudioSongInfo{
+    title: string;
+    category: string;
 }

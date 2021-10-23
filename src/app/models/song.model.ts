@@ -4,7 +4,6 @@ export interface Song{
     artist: string;
     album: string;
     duration: Duration;
-    userPref: UserPreference;
     img?: Blob;
 }
 
@@ -21,9 +20,9 @@ export interface Duration{
     sec: number;
 }
 
-export interface UserPreference{
+export interface SongState{
     favorite?: boolean;
-    onPlay?: boolean;
+    onPlay: boolean;
 }
 
 export interface PlayList{

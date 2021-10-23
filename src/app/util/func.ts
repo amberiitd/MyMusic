@@ -8,6 +8,9 @@ export function formatTime(sec: number){
     min = min.length === 1? `0${min}`: min;
     hour = hour.length === 1? `0${hour}`: hour;
 
-    return `${hour}:${min}:${second}`;
+    if(Math.floor(sec/ 3600) > 0){
+        return `${hour}:${min}:${second}`;
+    }
+    return `${min}:${second}`;
     
 }

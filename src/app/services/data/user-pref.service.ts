@@ -4,7 +4,7 @@ import { PlayList, PlayListDTO, Song } from "src/app/models/song.model";
 import { ActivityService } from "../activity.service";
 import { UserService } from "../user.service";
 import { SongService } from "./song.service";
-import { SongQuery } from "./songQuery.model";
+import { SongQuery } from "../../models/songQuery.model";
 
 @Injectable()
 export class UserPrefService{
@@ -34,9 +34,8 @@ export class UserPrefService{
     }
 
     public addToFav(title: string){
-
+        this.activityService._favoriteToggle.next({title: title});
         this.favList.push(this.songService.getSong(title));
-        this.activityService._favListUpdate.next();
 
         const options = {
             headers: {
@@ -54,10 +53,9 @@ export class UserPrefService{
     }
 
     public removeFromFav(title: string){
-
+        this.activityService._favoriteToggle.next({title: title});
         const index = this.favList.findIndex(song => song.title === title);
         this.favList.splice(index, 1);
-        this.activityService._favListUpdate.next();
 
         const options = {
             headers: {

@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Subject } from "rxjs";
-import { AudioEvent, defaultEvent } from "../models/audio-event.model";
+import { AudioEvent, AudioSongInfo, defaultEvent } from "../models/audio-event.model";
+import { formatTime } from "../util/func";
 import { ActivityService } from "./activity.service";
 import { SongService } from "./data/song.service";
 
@@ -22,7 +23,7 @@ export class AudioService{
     private audioCtx: AudioContext;
     private audioSrc: AudioBufferSourceNode;
     private audioBuffer: AudioBuffer | null;
-    private playRequest: {title: string | null} ={title: null};
+    private playRequest: AudioSongInfo | null;
 
 
     constructor(
@@ -30,9 +31,9 @@ export class AudioService{
         private displayService: ActivityService
     ){ }
 
-    play(title: string, offset: number | null = null){
+    play(song: AudioSongInfo, offset: number | null = null){
 
-        if(title === this.audioEvent.currentTitle){
+        if(song.title === this.audioEvent.currentSongInfo.title){
             if (offset && offset >=0 ){
                 this.audioEvent.currentPlayPoint = offset;
             }
@@ -48,8 +49,8 @@ export class AudioService{
        
         this.lastPlayPoint = 0;
         this.audioEvent.currentPlayPoint = 0;
-        this.playRequest ={title: title};
-        this.buildAudioCtx(title);
+        this.playRequest =song;
+        this.buildAudioCtx(song);
    
     }
 
@@ -57,7 +58,7 @@ export class AudioService{
         if(this.audioEvent.isOnPause){
             return;
         }
-        this.displayService._activitySubject.next({id: this.audioEvent.currentTitle, type: 'play', data: false});
+        this.displayService._audioActivitySubject.next({song: this.audioEvent.currentSongInfo, type: 'pause', data: false});
         this.audioEvent.isOnPause = true;
         await this.audioSrc.stop();
     }
@@ -78,7 +79,7 @@ export class AudioService{
         }
 
         this.audioEvent.songDuration = this.audioBuffer? this.audioBuffer.duration: 0;
-        this.displayService._activitySubject.next({id: this.audioEvent.currentTitle, type: 'play', data: true});
+        this.displayService._audioActivitySubject.next({song: this.audioEvent.currentSongInfo, type: 'play', data: true});
 
         this.audioSrc = this.audioCtx.createBufferSource();
         this.audioSrc.connect(this.audioCtx.destination);
@@ -98,11 +99,11 @@ export class AudioService{
 
     }
 
-    private async buildAudioCtx(title: string){
+    private async buildAudioCtx(song: AudioSongInfo){
         var songBlob ={data: new Blob()};
-        this.songService.fetchSongBlob(title, songBlob).subscribe(
+        this.songService.fetchSongBlob(song.title, songBlob).subscribe(
             async res => {
-                this.audioEvent.currentTitle = title;
+                this.audioEvent.currentSongInfo = song;
                 this.audioFile = res;
                 
                 this.audioCtx = new AudioContext();
@@ -114,9 +115,9 @@ export class AudioService{
                     this.audioBuffer = data;
                 });
                 
-                if(this.playRequest.title){
-                    this.play(this.playRequest.title);
-                    this.playRequest = {title: null};
+                if(this.playRequest && this.playRequest.title){
+                    this.play(this.playRequest);
+                    this.playRequest = null;
                 }
             }
         )
@@ -140,7 +141,7 @@ export class AudioService{
         this.lastPlayPoint = 0;
         this.audioEvent.currentPlayPoint = 0;
         this.audioEvent.isOnPause = true;
-        this.displayService._activitySubject.next({id: this.audioEvent.currentTitle, type: 'play', data: false});
+        this.displayService._audioActivitySubject.next({song: this.audioEvent.currentSongInfo, type: 'stop', data: false});
     }
 
 }
